@@ -1,21 +1,17 @@
-{
-  "name": "basex-node",
-  "description": "A BaseX Client for Node.js",
-  "version": "0.0.0",
-  "keywords": [ "basex", "node", "client", "basex-client", "basex-node" ],
-  "author": "Andy Bunce <bunce.andy@gmail.com>",
-  "contributors": [
-    { "name": "Andy Bunce", "web": "http://cubeb.blogspot.com/search/label/baseX-node" }
-  ],
-  "licenses": [ "MIT" ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/apb2006/basex-node.git"
-  },
-  "bugs": { "web": "https://github.com/apb2006/basex-node/issues" },
-  "directories": { "lib": "./lib", "test": "./test" },
-  "os": [ "linux", "darwin" ],
-  "dependencies": {},
-  "engines": { "node":  ">=0.4.0" },
-  "main": "./index.js"
+{   "name" : "basex",
+    "version" : "0.0.0",
+    "description" : "BaseX client library",
+    "author": "Andy Bunce <bunce.andy@gmail.com>",
+    "contributors": [
+        "Andy Bunce",
+        "
+    ],
+    "main": "./index.js",
+    "scripts": {
+        "test": "node ./test.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/apb2006/basex-node.git"
+    }
 }

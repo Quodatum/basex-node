@@ -1,20 +1,8 @@
-## baseX-node - Complete BaseX Client for Node.js
----
+basex - a node.js Basex client
+===========================
 
+This is a complete Basex client for node.js.  
 
+## Inspiration
 
-### Features include:
-- currently none
-....
-### Inspiration
-Brian Noguchi's redis-node
-
-### 3rd Party Libraries
-- [Vows Testing Framework](http://github.com/cloudhead/vows)
-
-### License
-MIT License
-
----
-### Author
-Andy Bunce
+Based on https://github.com/mranney/node_redis
