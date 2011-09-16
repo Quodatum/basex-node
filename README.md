@@ -1,7 +1,7 @@
 ## baseX-node - Complete BaseX Client for Node.js
 ---
 
-Blog post coming.
+
 
 ### Features include:
 - currently none

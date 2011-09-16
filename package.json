@@ -1,7 +1,7 @@
 {
-  "name": "redis-node",
-  "description": "A Complete Redis Client for Node.js",
-  "version": "0.0.1",
+  "name": "basex-node",
+  "description": "A BaseX Client for Node.js",
+  "version": "0.0.0",
   "keywords": [ "basex", "node", "client", "basex-client", "basex-node" ],
   "author": "Andy Bunce <bunce.andy@gmail.com>",
   "contributors": [
@@ -10,9 +10,9 @@
   "licenses": [ "MIT" ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/apb2006/baseX-node.git"
+    "url": "https://github.com/apb2006/basex-node.git"
   },
-  "bugs": { "web": "https://github.com/apb2006/baseX-node/issues" },
+  "bugs": { "web": "https://github.com/apb2006/basex-node/issues" },
   "directories": { "lib": "./lib", "test": "./test" },
   "os": [ "linux", "darwin" ],
   "dependencies": {},

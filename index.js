@@ -1,1 +1,1 @@
-module.exports = require("./lib/redis");
+module.exports = require("./lib/nodex");
