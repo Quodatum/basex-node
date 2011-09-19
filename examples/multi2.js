@@ -1,13 +1,13 @@
-var redis  = require("redis"),
-    client = redis.createClient(), multi;
+var basex  = require("basex"),
+    client = basex.createClient(), multi;
 
 // start a separate command queue for multi
 multi = client.multi();
-multi.incr("incr thing", redis.print);
-multi.incr("incr other thing", redis.print);
+multi.incr("incr thing", basex.print);
+multi.incr("incr other thing", basex.print);
 
 // runs immediately
-client.mset("incr thing", 100, "incr other thing", 1, redis.print);
+client.mset("incr thing", 100, "incr other thing", 1, basex.print);
 
 // drains multi queue and runs atomically
 multi.exec(function (err, replies) {
@@ -21,7 +21,7 @@ multi.exec(function (err, replies) {
 });
 
 client.multi([
-    ["mget", "multifoo", "multibar", redis.print],
+    ["mget", "multifoo", "multibar", basex.print],
     ["incr", "multifoo"],
     ["incr", "multibar"]
 ]).exec(function (err, replies) {

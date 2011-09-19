@@ -1,4 +1,4 @@
-var redis = require("./index"),
+var basex = require("./index"),
     num_clients = parseInt(process.argv[2]) || 50,
     active_clients = 0,
     clients = new Array(num_clients),
@@ -11,7 +11,7 @@ var redis = require("./index"),
         return_buffers: false
     };
 
-redis.debug_mode = false;
+basex.debug_mode = false;
 
 tests.push({
     descr: "PING",
@@ -57,7 +57,7 @@ function create_clients(callback) {
         var client, connected = active_clients;
 
         while (active_clients < num_clients) {
-            client = clients[active_clients++] = redis.createClient(6379, "127.0.0.1", client_options);
+            client = clients[active_clients++] = basex.createClient(6379, "127.0.0.1", client_options);
             client.on("connect", function() {
                 // Fire callback when all clients are connected
                 connected += 1;

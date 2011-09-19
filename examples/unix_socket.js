@@ -1,5 +1,5 @@
-var redis = require("redis"),
-    client = redis.createClient("/tmp/redis.sock"),
+var basex = require("basex"),
+    client = basex.createClient("/tmp/basex.sock"),
     profiler = require("v8-profiler");
 
 client.on("connect", function () {

@@ -1,9 +1,9 @@
 /*global require console setTimeout process Buffer */
-var redis = require("./index"),
-    client = redis.createClient(),
-    client2 = redis.createClient(),
-    client3 = redis.createClient(),
-    client4 = redis.createClient(9006, "filefish.redistogo.com"),
+var basex = require("./index"),
+    client = basex.createClient(),
+    client2 = basex.createClient(),
+    client3 = basex.createClient(),
+    client4 = basex.createClient(9006, "filefish.basextogo.com"),
     assert = require("assert"),
     util = require("./lib/util").util,
     test_db_num = 15, // this DB will be flushed and used for testing
@@ -12,7 +12,7 @@ var redis = require("./index"),
     ended = false;
 
 // Set this to truthy to see the wire protocol and other debugging info
-redis.debug_mode = process.argv[2];
+basex.debug_mode = process.argv[2];
 
 function buffers_to_strings(arr) {
     return arr.map(function (val) {
@@ -300,7 +300,7 @@ tests.HMSET_BUFFER_AND_ARRAY = function () {
 tests.HMGET = function () {
     var key1 = "test hash 1", key2 = "test hash 2", name = "HMGET";
 
-    // redis-like hmset syntax
+    // basex-like hmset syntax
     client.HMSET(key1, "0123456789", "abcdefghij", "some manner of key", "a type of value", require_string("OK", name));
 
     // fancy hmset syntax
@@ -570,7 +570,7 @@ tests.UTF8 = function () {
     });
 };
 
-// Set tests were adapted from Brian Hammond's redis-node-client.js, which has a comprehensive test suite
+// Set tests were adapted from Brian Hammond's basex-node-client.js, which has a comprehensive test suite
 
 tests.SADD = function () {
     var name = "SADD";
@@ -876,7 +876,7 @@ tests.SUNIONSTORE = function () {
     });
 }
 
-// SORT test adapted from Brian Hammond's redis-node-client.js, which has a comprehensive test suite
+// SORT test adapted from Brian Hammond's basex-node-client.js, which has a comprehensive test suite
 
 tests.SORT = function () {
     var name = "SORT";
@@ -1068,7 +1068,7 @@ function run_next_test() {
 console.log("Using reply parser " + client.reply_parser.name);
 
 client.once("ready", function start_tests() {
-    console.log("Connected to " + client.host + ":" + client.port + ", Redis server version " + client.server_info.redis_version + "\n");
+    console.log("Connected to " + client.host + ":" + client.port + ", basex server version " + client.server_info.basex_version + "\n");
 
     run_next_test();
 
@@ -1079,7 +1079,7 @@ client.on('end', function () {
   ended = true;
 });
 
-// TODO - need a better way to test auth, maybe auto-config a local Redis server?  Sounds hard.
+// TODO - need a better way to test auth, maybe auto-config a local basex server?  Sounds hard.
 // Yes, this is the real password.  Please be nice, thanks.
 client4.auth("664b1b6aaf134e1ec281945a8de702a9", function (err, res) {
     if (err) {

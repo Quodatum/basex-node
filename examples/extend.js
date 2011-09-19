@@ -1,10 +1,10 @@
-var redis = require("redis"),
-    client = redis.createClient();
+var basex = require("basex"),
+    client = basex.createClient();
 
-// Extend the RedisClient prototype to add a custom method
+// Extend the BasexClient prototype to add a custom method
 // This one converts the results from "INFO" into a JavaScript Object
 
-redis.RedisClient.prototype.parse_info = function (callback) {
+basex.BasexClient.prototype.parse_info = function (callback) {
     this.info(function (err, res) {
         var lines = res.toString().split("\r\n").sort();
         var obj = {};

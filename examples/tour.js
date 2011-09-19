@@ -1,12 +1,12 @@
 // Run using
 //    node examples/tour.js
 var sys = require("sys");
-var redis = require("redis-node");
-var client = redis.createClient();    // Create the client
+var basex = require("basex-node");
+var client = basex.createClient();    // Create the client
 client.select(2);                     // Select database 2
 
 // Assign the string "world" to the "hello" key.
-// You can provide a callback to handle the response from Redis
+// You can provide a callback to handle the response from basex
 // that gets asynchronously run upon seeing the response.
 client.set("hello", "world", function (err, status) {
   if (err) throw err;

@@ -26,7 +26,7 @@ function to_array(args) {
     return arr;
 }
 
-function RedisClient(stream, options) {
+function BasexClient(stream, options) {
     this.stream = stream;
     this.options = options || {};
 
@@ -71,7 +71,7 @@ function RedisClient(stream, options) {
         return_buffers: self.options.return_buffers || false
     });
 
-    // "reply error" is an error sent back by redis
+    // "reply error" is an error sent back by basex
     this.reply_parser.on("reply error", function (reply) {
         self.return_error(new Error(reply));
     });
@@ -80,7 +80,7 @@ function RedisClient(stream, options) {
     });
     // "error" is bad.  Somehow the parser got confused.  It'll try to reset and continue.
     this.reply_parser.on("error", function (err) {
-        self.emit("error", new Error("Redis reply parser error: " + err.stack));
+        self.emit("error", new Error("basex reply parser error: " + err.stack));
     });
 
     this.stream.on("connect", function () {
@@ -96,7 +96,7 @@ function RedisClient(stream, options) {
             return;
         }
         
-        var message = "Redis connection to " + self.host + ":" + self.port + " failed - " + msg.message;
+        var message = "basex connection to " + self.host + ":" + self.port + " failed - " + msg.message;
 
         if (exports.debug_mode) {
             console.warn(message);
@@ -134,10 +134,10 @@ function RedisClient(stream, options) {
 
     events.EventEmitter.call(this);
 }
-util.inherits(RedisClient, events.EventEmitter);
-exports.RedisClient = RedisClient;
+util.inherits(BasexClient, events.EventEmitter);
+exports.BasexClient = BasexClient;
 
-RedisClient.prototype.on_connect = function () {
+BasexClient.prototype.on_connect = function () {
     if (exports.debug_mode) {
         console.log("Stream connected " + this.host + ":" + this.port + " fd " + this.stream.fd);
     }
@@ -186,7 +186,7 @@ RedisClient.prototype.on_connect = function () {
     }
 };
 
-RedisClient.prototype.ready_check = function () {
+BasexClient.prototype.ready_check = function () {
     var self = this;
 
     function send_info_cmd() {
@@ -210,7 +210,7 @@ RedisClient.prototype.ready_check = function () {
             });
 
             obj.versions = [];
-            obj.redis_version.split('.').forEach(function (num) {
+            obj.basex_version.split('.').forEach(function (num) {
                 obj.versions.push(+num);
             });
 
@@ -219,7 +219,7 @@ RedisClient.prototype.ready_check = function () {
 
             if (!obj["loading"] || (obj["loading"] && obj["loading"] == 0)) {
                 if (exports.debug_mode) {
-                    console.log("Redis server ready.");
+                    console.log("basex server ready.");
                 }
                 self.ready = true;
 
@@ -231,7 +231,7 @@ RedisClient.prototype.ready_check = function () {
                     retry_time = 1000;
                 }
                 if (exports.debug_mode) {
-                    console.log("Redis server still loading, trying again in " + retry_time);
+                    console.log("basex server still loading, trying again in " + retry_time);
                 }
                 setTimeout(send_info_cmd, retry_time);
             }
@@ -242,7 +242,7 @@ RedisClient.prototype.ready_check = function () {
     send_info_cmd();
 };
 
-RedisClient.prototype.send_offline_queue = function () {
+BasexClient.prototype.send_offline_queue = function () {
     var command_obj;
     while (this.offline_queue.length > 0) {
         command_obj = this.offline_queue.shift();
@@ -255,7 +255,7 @@ RedisClient.prototype.send_offline_queue = function () {
     // Even though items were shifted off, Queue backing store still uses memory until next add
 };
 
-RedisClient.prototype.connection_gone = function (why) {
+BasexClient.prototype.connection_gone = function (why) {
     var self = this;
 
     // If a retry is already in progress, just let that happen
@@ -267,7 +267,7 @@ RedisClient.prototype.connection_gone = function (why) {
     self.stream.destroy();
 
     if (exports.debug_mode) {
-        console.warn("Redis connection is gone from " + why + " event.");
+        console.warn("basex connection is gone from " + why + " event.");
     }
     self.connected = false;
     self.ready = false;
@@ -311,7 +311,7 @@ RedisClient.prototype.connection_gone = function (why) {
     }, self.retry_delay);
 };
 
-RedisClient.prototype.on_data = function (data) {
+BasexClient.prototype.on_data = function (data) {
     if (exports.debug_mode) {
         console.log("net read " + this.host + ":" + this.port + " fd " + this.stream.fd + ": " + data.toString());
     }
@@ -327,7 +327,7 @@ RedisClient.prototype.on_data = function (data) {
     }
 };
 
-RedisClient.prototype.return_error = function (err) {
+BasexClient.prototype.return_error = function (err) {
     var command_obj = this.command_queue.shift();
 
     if (this.subscriptions === false && this.command_queue.length === 0) {
@@ -345,7 +345,7 @@ RedisClient.prototype.return_error = function (err) {
             });
         }
     } else {
-        console.log("node_redis: no callback to send error: " + err.message);
+        console.log("node_basex: no callback to send error: " + err.message);
         // this will probably not make it anywhere useful, but we might as well throw
         process.nextTick(function () {
             throw err;
@@ -353,7 +353,7 @@ RedisClient.prototype.return_error = function (err) {
     }
 };
 
-RedisClient.prototype.return_reply = function (reply) {
+BasexClient.prototype.return_reply = function (reply) {
     var command_obj = this.command_queue.shift(),
         obj, i, len, key, val, type, timestamp, args;
 
@@ -416,11 +416,11 @@ RedisClient.prototype.return_reply = function (reply) {
         });
         this.emit("monitor", timestamp, args);
     } else {
-        throw new Error("node_redis command queue state error. If you can reproduce this, please report it.");
+        throw new Error("node_basex command queue state error. If you can reproduce this, please report it.");
     }
 };
 
-RedisClient.prototype.send_command = function () {
+BasexClient.prototype.send_command = function () {
     var command, callback, arg, args, this_args, command_obj, i, il,
         elem_count, stream = this.stream, buffer_args, command_str = "";
 
@@ -543,7 +543,7 @@ RedisClient.prototype.send_command = function () {
     }
 };
 
-RedisClient.prototype.end = function () {
+BasexClient.prototype.end = function () {
     this.stream._events = {};
     this.connected = false;
     this.ready = false;
@@ -559,7 +559,7 @@ function Multi(client, args) {
     }
 }
 
-// Official source is: http://redis.io/commands.json
+// Official source is: http://basex.io/commands.json
 // This list needs to be updated, and perhaps auto-updated somehow.
 [
     // string commands
@@ -581,12 +581,12 @@ function Multi(client, args) {
     "monitor", "ttl", "persist", "slaveof", "debug", "config", "subscribe", "unsubscribe", "psubscribe", "punsubscribe", "publish", "watch", "unwatch",
     "quit"
 ].forEach(function (command) {
-    RedisClient.prototype[command] = function () {
+    BasexClient.prototype[command] = function () {
         var args = to_array(arguments);
         args.unshift(command); // put command at the beginning
         this.send_command.apply(this, args);
     };
-    RedisClient.prototype[command.toUpperCase()] = RedisClient.prototype[command];
+    BasexClient.prototype[command.toUpperCase()] = BasexClient.prototype[command];
 
     Multi.prototype[command] = function () {
         var args = to_array(arguments);
@@ -598,7 +598,7 @@ function Multi(client, args) {
 });
 
 // Stash auth for connect and reconnect.  Send immediately if already connected.
-RedisClient.prototype.auth = function () {
+BasexClient.prototype.auth = function () {
     var args = to_array(arguments);
     this.auth_pass = args[0];
     this.auth_callback = args[1];
@@ -611,9 +611,9 @@ RedisClient.prototype.auth = function () {
         this.send_command.apply(this, args);
     }
 };
-RedisClient.prototype.AUTH = RedisClient.prototype.auth;
+BasexClient.prototype.AUTH = BasexClient.prototype.auth;
 
-RedisClient.prototype.hmset = function () {
+BasexClient.prototype.hmset = function () {
     var args = to_array(arguments), tmp_args;
     if (args.length >= 2 && typeof args[0] === "string" && typeof args[1] === "object") {
         tmp_args = [ "hmset", args[0] ];
@@ -631,7 +631,7 @@ RedisClient.prototype.hmset = function () {
 
     this.send_command.apply(this, args);
 };
-RedisClient.prototype.HMSET = RedisClient.prototype.hmset;
+BasexClient.prototype.HMSET = BasexClient.prototype.hmset;
 
 Multi.prototype.hmset = function () {
     var args = to_array(arguments), tmp_args;
@@ -722,26 +722,26 @@ Multi.prototype.exec = function (callback) {
     });
 };
 
-RedisClient.prototype.multi = function (args) {
+BasexClient.prototype.multi = function (args) {
     return new Multi(this, args);
 };
-RedisClient.prototype.MULTI = function (args) {
+BasexClient.prototype.MULTI = function (args) {
     return new Multi(this, args);
 };
 
 exports.createClient = function (port_arg, host_arg, options) {
     var port = port_arg || default_port,
         host = host_arg || default_host,
-        redis_client, net_client;
+        basex_client, net_client;
 
     net_client = net.createConnection(port, host);
 
-    redis_client = new RedisClient(net_client, options);
+    basex_client = new BasexClient(net_client, options);
 
-    redis_client.port = port;
-    redis_client.host = host;
+    basex_client.port = port;
+    basex_client.host = host;
 
-    return redis_client;
+    return basex_client;
 };
 
 exports.print = function (err, reply) {

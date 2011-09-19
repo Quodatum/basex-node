@@ -1,4 +1,4 @@
-var client  = require("redis").createClient(),
+var client  = require("basex").createClient(),
     util = require("util");
 
 client.monitor(function (err, res) {

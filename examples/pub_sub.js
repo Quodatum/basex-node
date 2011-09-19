@@ -1,8 +1,8 @@
-var redis = require("redis"),
-    client1 = redis.createClient(), msg_count = 0,
-    client2 = redis.createClient();
+var basex = require("basex"),
+    client1 = basex.createClient(), msg_count = 0,
+    client2 = basex.createClient();
 
-redis.debug_mode = false;
+basex.debug_mode = false;
 
 // Most clients probably don't do much on "subscribe".  This example uses it to coordinate things within one program.
 client1.on("subscribe", function (channel, count) {

@@ -1,7 +1,7 @@
-// Read a file from disk, store it in Redis, then read it back from Redis.
+// Read a file from disk, store it in basex, then read it back from basex.
 
-var redis = require("redis"),
-    client = redis.createClient(),
+var basex = require("basex"),
+    client = basex.createClient(),
     fs = require("fs"),
     filename = "kids_in_cart.jpg";
 
@@ -9,12 +9,12 @@ var redis = require("redis"),
 //    curl http://ranney.com/kids_in_cart.jpg -o kids_in_cart.jpg
 // or just use your own file.
 
-// Read a file from fs, store it in Redis, get it back from Redis, write it back to fs.
+// Read a file from fs, store it in basex, get it back from basex, write it back to fs.
 fs.readFile(filename, function (err, data) {
     if (err) throw err
     console.log("Read " + data.length + " bytes from filesystem.");
     
-    client.set(filename, data, redis.print); // set entire file
+    client.set(filename, data, basex.print); // set entire file
     client.get(filename, function (err, reply) { // get entire file
         if (err) {
             console.log("Get error: " + err);

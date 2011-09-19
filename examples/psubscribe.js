@@ -1,11 +1,11 @@
-var redis = require("redis"),
-    client1 = redis.createClient(),
-    client2 = redis.createClient(),
-    client3 = redis.createClient(),
-    client4 = redis.createClient(),
+var basex = require("basex"),
+    client1 = basex.createClient(),
+    client2 = basex.createClient(),
+    client3 = basex.createClient(),
+    client4 = basex.createClient(),
     msg_count = 0;
 
-redis.debug_mode = false;
+basex.debug_mode = false;
 
 client1.on("psubscribe", function (pattern, count) {
     console.log("client1 psubscribed to " + pattern + ", " + count + " total subscriptions");
