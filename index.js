@@ -44,7 +44,7 @@ function BasexClient(stream, options) {
     this.monitoring = false;
     this.closing = false;
     this.server_info = {};
-    this.auth_pass = null;
+    this.auth_pass=null;
 
     var parser_module, self = this;
 
@@ -154,12 +154,12 @@ BasexClient.prototype.on_connect = function () {
     this.stream.setNoDelay();
     this.stream.setTimeout(0);
 
-    if (this.auth_pass) {
+   
         if (exports.debug_mode) {
             console.log("Sending auth to " + this.host + ":" + this.port + " fd " + this.stream.fd);
         }
         self.send_anyway = true;
-        self.send_command("auth", this.auth_pass, function (err, res) {
+        self.send_command("auth", this.options, function (err, res) {
             if (err) {
                 return self.emit("error", "Auth error: " + err);
             }
@@ -175,7 +175,7 @@ BasexClient.prototype.on_connect = function () {
             }
         });
         self.send_anyway = false;
-    }
+   
 
     this.emit("connect");
 
@@ -563,7 +563,10 @@ function Multi(client, args) {
 // Official source is: http://basex.io/commands.json
 // This list needs to be updated, and perhaps auto-updated somehow.
 [
-   "info","exit"
+   "info"
+   ,"exit"
+   ,"add"
+   ,"alter"
 ].forEach(function (command) {
     BasexClient.prototype[command] = function () {
         var args = to_array(arguments);
@@ -584,6 +587,7 @@ function Multi(client, args) {
 // Stash auth for connect and reconnect.  Send immediately if already connected.
 BasexClient.prototype.auth = function () {
     var args = to_array(arguments);
+    console.log("£££")
     this.auth_pass = args[0];
     this.auth_callback = args[1];
     if (exports.debug_mode) {
