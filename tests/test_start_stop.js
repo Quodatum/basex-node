@@ -1,3 +1,8 @@
+require.paths.unshift(".");
+var sys = require("sys");
+sys.puts("Modified require.paths: " + require.paths);
+
+
 var basex  = require("./index"),
     client = basex.createClient();
 

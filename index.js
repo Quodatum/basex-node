@@ -1,12 +1,13 @@
 /*global Buffer require exports console setTimeout */
 
 var net = require("net"),
-    util = require("./lib/util").util,
+    util = require("util"),
     Queue = require("./lib/queue").Queue,
     events = require("events"),
     parsers = [],
     default_port = 1984,
-    default_host = "127.0.0.1";
+    default_host = "127.0.0.1",
+    default_options = {"username":"admin","password":  "admin"};
 
 // can set this to true to enable for all connections
 exports.debug_mode = false;
@@ -562,24 +563,7 @@ function Multi(client, args) {
 // Official source is: http://basex.io/commands.json
 // This list needs to be updated, and perhaps auto-updated somehow.
 [
-    // string commands
-    "get", "set", "setnx", "setex", "append", "substr", "strlen", "del", "exists", "incr", "decr", "mget", 
-    // list commands
-    "rpush", "lpush", "rpushx", "lpushx", "linsert", "rpop", "lpop", "brpop", "blpop", "llen", "lindex", "lset", "lrange", "ltrim", "lrem", "rpoplpush",
-    // set commands
-    "sadd", "srem", "smove", "sismember", "scard", "spop", "srandmember", "sinter", "sinterstore", "sunion", "sunionstore", "sdiff", "sdiffstore", "smembers",
-    // sorted set commands
-    "zadd", "zincrby", "zrem", "zremrangebyscore", "zremrangebyrank", "zunionstore", "zinterstore", "zrange", "zrangebyscore", "zrevrangebyscore", 
-    "zcount", "zrevrange", "zcard", "zscore", "zrank", "zrevrank",
-    // hash commands
-    "hset", "hsetnx", "hget", "hmget", "hincrby", "hdel", "hlen", "hkeys", "hvals", "hgetall", "hexists", "incrby", "decrby",
-    //bit commands
-    "getbit", "setbit", "getrange", "setrange",
-    // misc
-    "getset", "mset", "msetnx", "randomkey", "select", "move", "rename", "renamenx", "expire", "expireat", "keys", "dbsize", "ping", "echo",
-    "save", "bgsave", "bgwriteaof", "shutdown", "lastsave", "type", "sync", "flushdb", "flushall", "sort", "info", "discard",
-    "monitor", "ttl", "persist", "slaveof", "debug", "config", "subscribe", "unsubscribe", "psubscribe", "punsubscribe", "publish", "watch", "unwatch",
-    "quit"
+   "info","exit"
 ].forEach(function (command) {
     BasexClient.prototype[command] = function () {
         var args = to_array(arguments);
@@ -729,9 +713,10 @@ BasexClient.prototype.MULTI = function (args) {
     return new Multi(this, args);
 };
 
-exports.createClient = function (port_arg, host_arg, options) {
+exports.createClient = function (port_arg, host_arg, options_arg) {
     var port = port_arg || default_port,
         host = host_arg || default_host,
+        options=options_arg ||default_options,
         basex_client, net_client;
 
     net_client = net.createConnection(port, host);
