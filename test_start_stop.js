@@ -10,7 +10,7 @@ var client = basex.createClient(1984, "127.0.0.1", {
 
 basex.debug_mode = true;
 client.info(basex.print);
-client.exit();
+client.close();
 
 // A workaround is:
 // client.info(function (err, res) {
