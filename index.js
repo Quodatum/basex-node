@@ -273,7 +273,7 @@ exports.createClient = function(port_arg, host_arg, options_arg) {
 			|| default_options, basex_client, net_client;
 
 	net_client = net.createConnection(port, host);
-
+	//net_client.setEncoding('utf-8')
 	basex_client = new BasexClient(net_client, options);
 
 	basex_client.port = port;
