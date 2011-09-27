@@ -3,6 +3,7 @@ var net = require("net")
 , util = require("util")
 , events = require("events")
 , crypto = require("crypto")
+, assert = require('assert')
 , port = 1984
 , host = "127.0.0.1"
 , options = {
@@ -31,10 +32,8 @@ stream.on("connect", function() {
 stream.on("data", function(reply) {
 	buffer += reply;
 	var l = buffer.length;
-	var p = buffer.indexOf(CHR0);
-	//console.log("data", l, p, buffer + ":");
-	var ip = buffer.substring(0, p);
-	buffer = buffer.substring(p + 1);
+	var ip=readline();
+	
 	console.log(ip + ":");
 	if (state == states.CONNECTING) {
 		send(options.username);
@@ -48,7 +47,8 @@ stream.on("data", function(reply) {
 		send("OPEN test");
 		send("1 to 5");
 	} else {
-		console.log(ip + "?");
+		var l=readline();
+		console.log(">>",l);
 	}
 });
 
@@ -75,7 +75,14 @@ function send(str){
 function query(xq){
 	send(CHR0+xq);
 };
-
+function readline(){
+	var p = buffer.indexOf(CHR0);
+	assert.notEqual(p, -1, "no null");
+	//console.log("data", l, p, buffer + ":");
+	var ip = buffer.substring(0, p);
+	buffer = buffer.substring(p + 1);
+	return ip;
+}
 // basex login response
 function loginresponse(timestamp,  password) {
 	// {username} {md5(md5(password) + timestamp)}
