@@ -12,7 +12,7 @@ var net = require("net")
 	"username" : "admin",
 	"password" : "admin"
 };
-
+var CHR0 = "\x00";
 // can set this to true to enable for all connections
 exports.debug_mode = false;
 
@@ -250,15 +250,18 @@ BasexClient.prototype.on_data = function(data) {
 };
 BasexClient.prototype.return_reply=function(reply){
 	if(this.state==this.states.CONNECTING){
-		var s=loginresponse(reply
-				        , this.options.username
-				        , this.options.password);
+		this.send(options.username);
+		var s=loginresponse(reply , this.options.password);
 		this.state = this.states.AUTHORIZE;
-		this.stream.write(s);
+		this.send(s);
 		console.log("BasexClient.prototype.return_reply",s);
 	}else if (this.state==this.states.AUTHORIZE){
 		console.log("auth:",reply,"::");
 	}
+};
+BasexClient.prototype.send=function(str){
+	console.log(">>",str);
+	stream.write(str+CHR0);
 };
 
 BasexClient.prototype.end = function() {
@@ -273,7 +276,7 @@ exports.createClient = function(port_arg, host_arg, options_arg) {
 			|| default_options, basex_client, net_client;
 
 	net_client = net.createConnection(port, host);
-	//net_client.setEncoding('utf-8')
+	net_client.setEncoding('utf-8')
 	basex_client = new BasexClient(net_client, options);
 
 	basex_client.port = port;
@@ -292,12 +295,12 @@ function print(err, reply) {
 };
 exports.print = print;
 
-// basex login response
-function loginresponse(timestamp, username, password) {
+//basex login response
+function loginresponse(timestamp,  password) {
 	// {username} {md5(md5(password) + timestamp)}
 	var p1 = crypto.createHash('md5').update(password).digest("hex");
-	console.log("admin:",p1," @"+password+"@");
 	var p2 = crypto.createHash('md5').update(p1 + timestamp).digest("hex");
-	return username + "\x00" + p2 + "\x00";
+	return  p2 ;
 };
+
 exports.loginresponse = loginresponse;
