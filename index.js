@@ -131,7 +131,52 @@ function BasexClient(stream, options) {
 	this.stream.on("drain", function() {
 		self.emit("drain");
 	});
+	//Official source is: http://docs.basex.org/wiki/Server_Protocol
+	//This list needs to be updated, and perhaps auto-updated somehow.
+	[
+	//Creates and returns session with host, port, user name and password:
+	"Session" // (String host, int port, String name, String password)
 
+	//Executes a command and returns the result:
+	, "execute" // (String command)
+
+	//Returns a query object for the specified query:
+	, "query" // (String query)
+
+	//Creates a database from an input stream:
+	, "create" // (String name, InputStream in)
+
+	//Adds a document to the current database from an input stream:
+	, "add" // (String name, String target, InputStream in)
+
+	//Replaces a document with the specified input stream:
+	, "replace" // (String path, InputStream in)
+
+	//Stores raw data at the specified path:
+	, "store" // (String path, InputStream in)
+
+	//Watches the specified event:
+	, "watch" // (String name, Event notifier)
+
+	//Unwatches the specified event:
+	, "unwatch" // (String name)
+
+	//Returns process information:
+	, "info"
+
+	//Closes the session:
+	, "close"
+
+	]
+			.forEach(function(command) {
+				BasexClient.prototype[command] = function() {
+					var args = to_array(arguments);
+					args.unshift(command); // put command at the beginning
+					this.send_command.apply(this, args);
+				};
+				BasexClient.prototype[command.toUpperCase()] = BasexClient.prototype[command];
+
+			});
 	events.EventEmitter.call(this);
 }
 util.inherits(BasexClient, events.EventEmitter);
@@ -270,52 +315,140 @@ BasexClient.prototype.end = function() {
 	this.ready = false;
 	return this.stream.end();
 };
-//Official source is: http://docs.basex.org/wiki/Server_Protocol
-//This list needs to be updated, and perhaps auto-updated somehow.
-[
-//Creates and returns session with host, port, user name and password:
-"Session" // (String host, int port, String name, String password)
 
-//Executes a command and returns the result:
-, "execute" // (String command)
+BasexClient.prototype.send_command = function() {
+	var command, callback, arg, args, this_args, command_obj, i, il, elem_count, stream = this.stream, buffer_args, command_str = "";
 
-//Returns a query object for the specified query:
-, "query" // (String query)
+	this_args = to_array(arguments);
 
-//Creates a database from an input stream:
-, "create" // (String name, InputStream in)
+	if (this_args.length === 0) {
+		throw new Error("send_command: not enough arguments");
+	}
 
-//Adds a document to the current database from an input stream:
-, "add" // (String name, String target, InputStream in)
+	if (typeof this_args[0] !== "string") {
+		throw new Error(
+				"First argument of send_command must be the command name");
+	}
+	command = this_args[0].toLowerCase();
 
-//Replaces a document with the specified input stream:
-, "replace" // (String path, InputStream in)
+	if (this_args[1] && Array.isArray(this_args[1])) {
+		args = this_args[1];
+		if (typeof this_args[2] === "function") {
+			callback = this_args[2];
+		}
+	} else {
+		if (typeof this_args[this_args.length - 1] === "function") {
+			callback = this_args[this_args.length - 1];
+			args = this_args.slice(1, this_args.length - 1);
+		} else {
+			args = this_args.slice(1, this_args.length);
+		}
+	}
 
-//Stores raw data at the specified path:
-, "store" // (String path, InputStream in)
+	command_obj = {
+		command : command,
+		args : args,
+		callback : callback,
+		sub_command : false
+	};
 
-//Watches the specified event:
-, "watch" // (String name, Event notifier)
+	if (!this.ready && !this.send_anyway) {
+		if (exports.debug_mode) {
+			console.log("Queueing " + command + " for next server connection.");
+		}
+		this.offline_queue.push(command_obj);
+		return;
+	}
 
-//Unwatches the specified event:
-, "unwatch" // (String name)
+	if (command === "subscribe" || command === "psubscribe"
+			|| command === "unsubscribe" || command === "punsubscribe") {
+		if (this.subscriptions === false && exports.debug_mode) {
+			console.log("Entering pub/sub mode from " + command);
+		}
+		command_obj.sub_command = true;
+		this.subscriptions = true;
+	} else if (command === "monitor") {
+		this.monitoring = true;
+	} else if (command === "quit") {
+		this.closing = true;
+	} else if (this.subscriptions === true) {
+		throw new Error(
+				"Connection in pub/sub mode, only pub/sub commands may be used");
+	}
+	this.command_queue.push(command_obj);
+	this.commands_sent += 1;
 
-//Returns process information:
-, "info"
+	elem_count = 1;
+	buffer_args = false;
 
-//Closes the session:
-, "close"
+	elem_count += args.length;
+	// Probably should just scan this like a normal person. This is clever, but
+	// might be slow.
+	buffer_args = args.some(function(arg) {
+		return arg instanceof Buffer;
+	});
 
-]
-		.forEach(function(command) {
-			BasexClient.prototype[command] = function() {
-				var args = to_array(arguments);
-				args.unshift(command); // put command at the beginning
-				this.send_command.apply(this, args);
-			};
-			BasexClient.prototype[command.toUpperCase()] = BasexClient.prototype[command];
+	// Always use "Multi bulk commands", but if passed any Buffer args, then do
+	// multiple writes, one for each arg
+	// This means that using Buffers in commands is going to be slower, so use
+	// Strings if you don't already have a Buffer.
+	// Also, why am I putting user documentation in the library source code?
 
-		});
+	command_str = "*" + elem_count + "\r\n$" + command.length + "\r\n"
+			+ command + "\r\n";
+
+	if (!stream.writable && exports.debug_mode) {
+		console
+				.log("send command: stream is not writeable, should get a close event next tick.");
+		return;
+	}
+
+	if (!buffer_args) { // Build up a string and send entire command in one
+						// write
+		for (i = 0, il = args.length, arg; i < il; i += 1) {
+			arg = args[i];
+			if (typeof arg !== "string") {
+				arg = String(arg);
+			}
+			command_str += "$" + Buffer.byteLength(arg) + "\r\n" + arg + "\r\n";
+		}
+		if (exports.debug_mode) {
+			console.log("send " + this.host + ":" + this.port + " fd "
+					+ this.stream.fd + ": " + command_str);
+		}
+		stream.write(command_str);
+	} else {
+		if (exports.debug_mode) {
+			console.log("send command: " + command_str);
+			console.log("send command has Buffer arguments");
+		}
+		stream.write(command_str);
+
+		for (i = 0, il = args.length, arg; i < il; i += 1) {
+			arg = args[i];
+			if (!(arg instanceof Buffer || arg instanceof String)) {
+				arg = String(arg);
+			}
+
+			if (arg instanceof Buffer) {
+				if (arg.length === 0) {
+					if (exports.debug_mode) {
+						console.log("Using empty string for 0 length buffer");
+					}
+					stream.write("$0\r\n\r\n");
+				} else {
+					stream.write("$" + arg.length + "\r\n");
+					stream.write(arg);
+					stream.write("\r\n");
+				}
+			} else {
+				stream.write("$" + Buffer.byteLength(arg) + "\r\n" + arg
+						+ "\r\n");
+			}
+		}
+	}
+};
+
 
 exports.createClient = function(port_arg, host_arg, options_arg) {
 	var port = port_arg || default_port, host = host_arg || default_host, options = options_arg

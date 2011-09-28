@@ -6,11 +6,10 @@ sys.puts("Modified require.paths: " + require.paths);
 var basex  = require("../index"),
     client = basex.createClient();
 
-
-
 basex.debug_mode = true;
+
 client.info(basex.print);
-client.quit();
+client.close(basex.print);
 
 // A workaround is:
 // client.info(function (err, res) {
