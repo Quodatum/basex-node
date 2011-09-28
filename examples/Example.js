@@ -3,7 +3,7 @@
  * This example shows how database commands can be executed.
 
  */
-var basex  = require("./index");
+var basex  = require("../index");
 var client = basex.createClient();
 var t0=new date().getTime();
 client.execute("xquery 1 to 10",basex.print);

@@ -3,7 +3,7 @@
  * This example shows how new databases can be created.
  *
  */
-var basex  = require("./index");
+var basex  = require("../index");
 var client = basex.createClient();
 
   // create session
