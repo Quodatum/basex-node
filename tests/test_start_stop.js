@@ -3,7 +3,7 @@ var sys = require("sys");
 sys.puts("Modified require.paths: " + require.paths);
 
 
-var basex  = require("./index"),
+var basex  = require("../index"),
     client = basex.createClient();
 
 // This currently doesn't work, due to what I beleive to be a bug in basex 2.0.1.

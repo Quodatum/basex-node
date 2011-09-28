@@ -82,7 +82,13 @@ function readline(){
 	var ip = buffer.substring(0, p);
 	buffer = buffer.substring(p + 1);
 	return ip;
-}
+};
+function read(){
+	//console.log("data", l, p, buffer + ":");
+	var ip = buffer.substring(0, 0);
+	buffer = buffer.substring( 1);
+	return ip;
+};
 // basex login response
 function loginresponse(timestamp,  password) {
 	// {username} {md5(md5(password) + timestamp)}
