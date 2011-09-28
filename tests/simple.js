@@ -30,22 +30,21 @@ stream.on("connect", function() {
 });
 
 stream.on("data", function(reply) {
+	console.dir(reply);
 	buffer += reply;
-	var l = buffer.length;
-	var ip=readline();
-	
-	console.log(ip + ":");
 	if (state == states.CONNECTING) {
+		var ip=readline();
 		send(options.username);
 		var s = loginresponse(ip,  options.password);
 		send(s);
 		state = states.AUTHORIZE;
 	} else if (state == states.AUTHORIZE) {
-		console.log("auth:", ip.charCodeAt(0));
+		var b=read();
+		console.log("auth:", b);
 		state = states.CONNECTED;
 		//send("info");
 		send("OPEN test");
-		send("1 to 5");
+		send("XQUERY 1 to 5");
 	} else {
 		var l=readline();
 		console.log(">>",l);
