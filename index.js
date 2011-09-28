@@ -270,6 +270,52 @@ BasexClient.prototype.end = function() {
 	this.ready = false;
 	return this.stream.end();
 };
+//Official source is: http://docs.basex.org/wiki/Server_Protocol
+//This list needs to be updated, and perhaps auto-updated somehow.
+[
+//Creates and returns session with host, port, user name and password:
+"Session" // (String host, int port, String name, String password)
+
+//Executes a command and returns the result:
+, "execute" // (String command)
+
+//Returns a query object for the specified query:
+, "query" // (String query)
+
+//Creates a database from an input stream:
+, "create" // (String name, InputStream in)
+
+//Adds a document to the current database from an input stream:
+, "add" // (String name, String target, InputStream in)
+
+//Replaces a document with the specified input stream:
+, "replace" // (String path, InputStream in)
+
+//Stores raw data at the specified path:
+, "store" // (String path, InputStream in)
+
+//Watches the specified event:
+, "watch" // (String name, Event notifier)
+
+//Unwatches the specified event:
+, "unwatch" // (String name)
+
+//Returns process information:
+, "info"
+
+//Closes the session:
+, "close"
+
+]
+		.forEach(function(command) {
+			BasexClient.prototype[command] = function() {
+				var args = to_array(arguments);
+				args.unshift(command); // put command at the beginning
+				this.send_command.apply(this, args);
+			};
+			BasexClient.prototype[command.toUpperCase()] = BasexClient.prototype[command];
+
+		});
 
 exports.createClient = function(port_arg, host_arg, options_arg) {
 	var port = port_arg || default_port, host = host_arg || default_host, options = options_arg
