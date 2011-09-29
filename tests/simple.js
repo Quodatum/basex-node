@@ -24,7 +24,7 @@ var buffer = "";
 console.log("login to basex server");
 
 var s=new bstream.BaseXStream(port, host,options);
-
+s.on("connected",function(err,res){console.log("ddddd")})
 var stream = net.createConnection(port, host);
 stream.setEncoding('utf-8');
 
