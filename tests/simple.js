@@ -4,6 +4,7 @@ var net = require("net")
 , events = require("events")
 , crypto = require("crypto")
 , assert = require('assert')
+, bstream =require("../lib/stream")
 , port = 1984
 , host = "127.0.0.1"
 , options = {
@@ -22,6 +23,8 @@ var state = states.DISCONNECTED;
 var buffer = "";
 console.log("login to basex server");
 
+var s=new bstream.BaseXStream(port, host,options);
+
 var stream = net.createConnection(port, host);
 stream.setEncoding('utf-8');
 
@@ -39,8 +42,9 @@ stream.on("data", function(reply) {
 		send(s);
 		state = states.AUTHORIZE;
 	} else if (state == states.AUTHORIZE) {
-		var b=read();
+		var b=read().charCodeAt(0);;
 		console.log("auth:", b);
+		if(!0==b) throw "Failed to login";
 		state = states.CONNECTED;
 		//send("info");
 		send("OPEN test");
@@ -66,6 +70,7 @@ stream.on("end", function() {
 stream.on("drain", function() {
 	console.log("drain");
 });
+
 function send(str){
 	console.log(">>",str);
 	stream.write(str+CHR0);
@@ -84,8 +89,8 @@ function readline(){
 };
 function read(){
 	//console.log("data", l, p, buffer + ":");
-	var ip = buffer.substring(0, 0);
-	buffer = buffer.substring( 1);
+	var ip = buffer.substr(0, 1);
+	buffer = buffer.substr( 1);
 	return ip;
 };
 // basex login response
