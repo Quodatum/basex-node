@@ -3,7 +3,8 @@ basex - a node.js Basex client
 
 This is BaseX client for node.js. Currently this client has minimal functionality. 
 
-[BaseX](http://basex.org/) is an XML database. 
+[BaseX](http://basex.org/) is an XML database. It has the following features:
+ 
 * High-performance database storage with text, attribute, full-text and path indexes.
 * Efficient support of the W3C XPath/XQuery Recommendations 
 * Full Text search and Update Extensions. 
