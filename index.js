@@ -8,6 +8,7 @@ var net = require("net")
 , events = require("events")
 , crypto = require("crypto")
 , assert = require('assert')
+, Queue = require("./lib/queue").Queue
 ;
 
 var states = {
@@ -26,6 +27,17 @@ var BaseXStream = function(port, host, username,password) {
 	this.host=host||"127.0.0.1";
 	this.username=username||"admin";
 	this.password=password||"admin";
+	this.connections = 0;
+	this.attempts = 1;
+	this.command_queue = new Queue(); // holds sent commands to de-pipeline
+	// them
+	this.offline_queue = new Queue(); // holds commands issued but not able to
+	// be sent
+	this.commands_sent = 0;
+	this.retry_delay = 250;
+	this.retry_backoff = 1.7;
+	this.subscriptions = false;
+	
 	var stream;
 	try{
 		stream = net.createConnection(this.port, this.host);
@@ -121,6 +133,10 @@ function loginresponse(timestamp, password) {
 	var p1 = crypto.createHash('md5').update(password).digest("hex");
 	var p2 = crypto.createHash('md5').update(p1 + timestamp).digest("hex");
 	return p2;
+};
+
+function md5(str){
+	return crypto.createHash('md5').update(str).digest("hex");
 };
 
 util.inherits(BaseXStream, events.EventEmitter);
