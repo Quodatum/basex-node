@@ -15,7 +15,7 @@ tested against version 6.7.1
 1. run the basexserver script
 
 ## Tests
-node tests/simple.js
+`node tests/simple.js`
 
 ## Changelog
 0.1 2011-09-30 login and simple test working
