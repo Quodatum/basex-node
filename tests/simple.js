@@ -2,7 +2,7 @@
 var bstream =require("../index");
 bstream.debug_mode = false;
 
-var cmds=["OPEN test","XQUERY 1 to 5","XQUERY count(//*)"];
+var cmds=["OPEN snipsnap","XQUERY 1 to 5","XQUERY count(//*)"];
 var s=new bstream.BaseXStream();
 
 s.on("connected",function(res){
@@ -14,6 +14,7 @@ s.on("reply",function(res){
 	if(cmds.length){
 		s.send(cmds.shift());
 	}else{
+		s.info(function(){console.log("info callback")});
 		s.close();
 	}
 	

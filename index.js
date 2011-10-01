@@ -37,7 +37,6 @@ var BaseXStream = function(port, host, username,password) {
 	this.retry_delay = 250;
 	this.retry_backoff = 1.7;
 	this.subscriptions = false;
-	
 	var stream;
 	try{
 		stream = net.createConnection(this.port, this.host);
@@ -48,7 +47,7 @@ var BaseXStream = function(port, host, username,password) {
 	this.stream = stream;
 	this.state = states.DISCONNECTED;
 	this.buffer="";
-	events.EventEmitter.call(this);
+
 	var self = this;
 	stream.on("connect", function() {
 		self.state = states.CONNECTING;
@@ -124,8 +123,65 @@ var BaseXStream = function(port, host, username,password) {
 		this.send("exit");
 		this.stream.end();
 	};
+	//Official source is: http://docs.basex.org/wiki/Server_Protocol
+	//This list needs to be updated, and perhaps auto-updated somehow.
+	[
+	//Creates and returns session with host, port, user name and password:
+	"Session" // (String host, int port, String name, String password)
+
+	//Executes a command and returns the result:
+	, "execute" // (String command)
+
+	//Returns a query object for the specified query:
+	, "query" // (String query)
+
+	//Creates a database from an input stream:
+	, "create" // (String name, InputStream in)
+
+	//Adds a document to the current database from an input stream:
+	, "add" // (String name, String target, InputStream in)
+
+	//Replaces a document with the specified input stream:
+	, "replace" // (String path, InputStream in)
+
+	//Stores raw data at the specified path:
+	, "store" // (String path, InputStream in)
+
+	//Watches the specified event:
+	, "watch" // (String name, Event notifier)
+
+	//Unwatches the specified event:
+	, "unwatch" // (String name)
+
+	//Returns process information:
+	, "info"
+
+	//Closes the session:
+	//, "close"
+
+	].forEach(function(command) {
+				BaseXStream.prototype[command] = function() {
+					var args = to_array(arguments);
+					args.unshift(command); // put command at the beginning
+					console.log("special");
+					console.dir(args);
+					//this.send_command.apply(this, args);
+				};
+				BaseXStream.prototype[command.toUpperCase()] = BaseXStream.prototype[command];
+
+			});
+	events.EventEmitter.call(this);
 };
 
+function to_array(args) {
+	var len = args.length, arr = new Array(len), i;
+
+	for (i = 0; i < len; i += 1) {
+		arr[i] = args[i];
+	}
+
+	return arr;
+}
 
 // basex login response
 function loginresponse(timestamp, password) {
