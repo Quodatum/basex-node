@@ -4,7 +4,7 @@
 
  */
 var basex  = require("../index");
-var client = basex.createClient();
+var client = basex.Session();
 var t0=new Date();
 client.execute("xquery 1 to 10",basex.print);
 client.close(basex.print);

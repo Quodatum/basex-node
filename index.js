@@ -1,5 +1,5 @@
 // baseXclient
-
+// command queue has {string,parser,callback}
 // can set this to true to enable for all connections
 exports.debug_mode = false;
 
@@ -9,6 +9,7 @@ var net = require("net")
 , crypto = require("crypto")
 , assert = require('assert')
 , Queue = require("./lib/queue").Queue
+, Cmds = require("./lib/commands").Cmds
 ;
 
 var states = {
@@ -45,6 +46,7 @@ var BaseXStream = function(port, host, username,password) {
 		throw "Failed to connect to server"
 	};
 	this.stream = stream;
+	this.cmds=new Cmds(stream);
 	this.state = states.DISCONNECTED;
 	this.buffer="";
 
@@ -61,27 +63,21 @@ var BaseXStream = function(port, host, username,password) {
 		if (self.state == states.CONNECTING) {
 			var timestamp = self.readline();
 			self.send(self.username);
-			var s = loginresponse(timestamp, self.password);
+			var s = md5(md5(self.password) + timestamp);
 			self.send(s);
 			self.state = states.AUTHORIZE;
 		} else if (self.state == states.AUTHORIZE) {
 			if (!0 == self.read().charCodeAt(0))
-				throw "Failed to login";
+				throw "Access denied.";
 			self.state = states.CONNECTED;
 			self.emit("connected", 1);
 		} else {
-			if(-1!=self.buffer.indexOf(CHR0)){
-				var reply = {
-						result:self.readline(),
-						info:self.readline()};
-				self.read();
-				self.emit("reply", reply);
-			};
+			self.getResponse();
 		}
 	});
 
 	stream.on("error", function(msg) {
-		console.log("error");
+		console.log("error",msg);
 	});
 
 	stream.on("close", function() {
@@ -93,7 +89,7 @@ var BaseXStream = function(port, host, username,password) {
 	});
 
 	stream.on("drain", function() {
-		console.log("drain");
+//		console.log("drain");
 	});
 	this.send = function(str) {
 		if (exports.debug_mode) {
@@ -117,7 +113,15 @@ var BaseXStream = function(port, host, username,password) {
 		self.buffer = self.buffer.substring(p + 1);
 		return ip;
 	};
-	
+	this.getResponse=function(){
+		if(-1!=self.buffer.indexOf(CHR0)){
+			var reply = {
+					result:self.readline(),
+					info:self.readline()};
+			self.read();
+			self.emit("reply", reply);
+		};
+	};
 	this.close = function() {
 		//console.log("close");
 		this.send("exit");
@@ -126,8 +130,6 @@ var BaseXStream = function(port, host, username,password) {
 	//Official source is: http://docs.basex.org/wiki/Server_Protocol
 	//This list needs to be updated, and perhaps auto-updated somehow.
 	[
-	//Creates and returns session with host, port, user name and password:
-	"Session" // (String host, int port, String name, String password)
 
 	//Executes a command and returns the result:
 	, "execute" // (String command)
@@ -153,9 +155,6 @@ var BaseXStream = function(port, host, username,password) {
 	//Unwatches the specified event:
 	, "unwatch" // (String name)
 
-	//Returns process information:
-	, "info"
-
 	//Closes the session:
 	//, "close"
 
@@ -165,6 +164,7 @@ var BaseXStream = function(port, host, username,password) {
 					args.unshift(command); // put command at the beginning
 					console.log("special");
 					console.dir(args);
+					this.cmds.execute(args[1])
 					//this.send_command.apply(this, args);
 				};
 				BaseXStream.prototype[command.toUpperCase()] = BaseXStream.prototype[command];
@@ -183,17 +183,9 @@ function to_array(args) {
 	return arr;
 }
 
-// basex login response
-function loginresponse(timestamp, password) {
-	// {username} {md5(md5(password) + timestamp)}
-	var p1 = crypto.createHash('md5').update(password).digest("hex");
-	var p2 = crypto.createHash('md5').update(p1 + timestamp).digest("hex");
-	return p2;
-};
-
 function md5(str){
 	return crypto.createHash('md5').update(str).digest("hex");
 };
 
 util.inherits(BaseXStream, events.EventEmitter);
-exports.BaseXStream = BaseXStream;
+exports.Session = BaseXStream;
