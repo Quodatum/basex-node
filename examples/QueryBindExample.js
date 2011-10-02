@@ -4,17 +4,17 @@
  */
 
 var basex  = require("../index");
-var session = basex.Session("localhost", 1984, "admin", "admin");
+var session = new basex.Session("localhost", 1984, "admin", "admin");
 
 // create query instance
-var input = "declare variable \$name external; for \$i in 1 to 10 return element { \$name } { \$i }";
+var input = "declare variable $name external; for $i in 1 to 10 return element { $name } { $i }";
 var query = session.query(input);
 
 // bind variable
 query.bind("name", "number");
 
 // print results
-query->execute(basex.print);
+query.execute(basex.print);
 
 // close query instance
 query.close();

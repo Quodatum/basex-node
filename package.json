@@ -1,6 +1,13 @@
 {   "name" : "basex",
     "version" : "0.1.0",
     "description" : "BaseX client library",
+    "keywords": [
+    "xml",
+    "xquery",
+    "xslt",
+    "search",
+    "database"
+  ],
     "author": "Andy Bunce ",
     "contributors": [
         "Andy Bunce"
@@ -12,5 +19,8 @@
     "repository": {
         "type": "git",
         "url": "git://github.com/apb2006/basex-node.git"
-    }
+    },
+     "engines": {
+    "node": "0.4 "
+  }
 }
