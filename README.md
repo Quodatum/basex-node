@@ -7,10 +7,13 @@ This is BaseX client for node.js. Currently this client has minimal functionalit
  
 * High-performance database storage with text, attribute, full-text and path indexes.
 * Efficient support of the W3C XPath/XQuery Recommendations 
-* Full Text search and Update Extensions. 
-
+* Full Text search and Update Extensions.
+* XSLT 
+## Installing the BaseX Node client
+....
 
 ## Installing BaseX
+Requires Java.
 1. Download from http://basex.org/products/download/all-downloads/
 tested against version 6.7.1
 1. run the basexserver script

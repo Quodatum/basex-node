@@ -3,8 +3,7 @@
     "description" : "BaseX client library",
     "author": "Andy Bunce ",
     "contributors": [
-        "Andy Bunce",
-        "
+        "Andy Bunce"
     ],
     "main": "./index.js",
     "scripts": {
