@@ -88,6 +88,9 @@ var BaseXStream = function(host, port, username, password) {
 		} else {
 			var r=self.getResponse();
 			if(r){
+				if (exports.debug_mode) {
+					console.log("response: ",r);
+				};
 				self.current_command.callback(null,r);
 				self.current_command=null;
 				self.doNext();
@@ -246,23 +249,26 @@ var Query = function(session,query){
 	
     this.close=function(callback){
 		self.session.send_command({
-			send: "\x02"+ this.id+"\x00",
+			send: "\x02"+ self.id+"\x00",
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
     };
     
 	this.bind=function(name,value,callback){
+		console.log("BIND",self.id);
+		/*
 		self.session.send_command({
-			send: "\x03"+ this.id +"\x00"+name+"\x00"+value+"\x00",
+			send: "\x03"+ self.id +"\x00"+name+"\x00"+value+"\x00",
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
+		*/
 	};
 	
 	this.iter=function(callback){
 		self.session.send_command({
-			send: "\x04"+ this.id+"\x00",
+			send: "\x04"+ self.id+"\x00",
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
@@ -270,7 +276,7 @@ var Query = function(session,query){
     
 	this.execute=function(callback){
 		self.session.send_command({
-			send: "\x05"+ this.id+"\x00",
+			send: "\x05"+ self.id+"\x00",
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
@@ -278,7 +284,7 @@ var Query = function(session,query){
 
 	this.info=function(callback){
 		self.session.send_command({
-			send: "\x06"+ this.id+"\x00",
+			send: "\x06"+ self.id+"\x00",
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
@@ -286,7 +292,7 @@ var Query = function(session,query){
 
 	this.options=function(callback){
 		self.session.send_command({
-			send: "\x07"+ this.id+"\x00",
+			send: "\x07"+ self.id+"\x00",
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
@@ -295,9 +301,11 @@ var Query = function(session,query){
 	// request id
 	session.send_command({
 			send : CHR0+query + CHR0,
-			parser : self.getResponse,
+			parser : self.session.getResponse,
 			callback : function(err,reply){
-				console.log("query",id);
+				self.id=reply.result;
+				console.log("query id: ",query);
+				console.log("ID: ",self.id);
 			}
 	});		
 };

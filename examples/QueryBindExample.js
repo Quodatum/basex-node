@@ -4,6 +4,7 @@
  */
 
 var basex  = require("../index");
+basex.debug_mode = true;
 var session = new basex.Session("localhost", 1984, "admin", "admin");
 
 // create query instance
@@ -14,11 +15,11 @@ var query = session.query(input);
 query.bind("name", "number");
 
 // print results
-query.execute(basex.print);
+//query.execute(basex.print);
 
 // close query instance
-query.close();
+//query.close();
 
 // close session
-session.close();
+//session.close();
 
