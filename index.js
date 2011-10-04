@@ -154,12 +154,8 @@ var BaseXStream = function(host, port, username, password) {
 		});		
 	};
 	// Returns a query object for the specified query:
-	this.query = function(query,callback) {
-		 self.send_command({
-				send : CHR0+query + CHR0,
-				parser : self.getResponse,
-				callback : callback
-			});		
+	this.query = function(query) {
+		return new Query(self,query);	
 	};
 	// Creates a database from an input stream:
 	this.create = function(name, input,callback) {
@@ -241,6 +237,70 @@ var BaseXStream = function(host, port, username, password) {
 	events.EventEmitter.call(this);
 };
 
+//query
+var Query = function(session,query){
+	this.session=session;
+	this.query=query;
+	this.id=null;
+	var self=this;
+	
+    this.close=function(callback){
+		self.session.send_command({
+			send: "\x02"+ this.id+"\x00",
+		    parser:self.session.getResponse,
+		    callback:callback
+		});
+    };
+    
+	this.bind=function(name,value,callback){
+		self.session.send_command({
+			send: "\x03"+ this.id +"\x00"+name+"\x00"+value+"\x00",
+		    parser:self.session.getResponse,
+		    callback:callback
+		});
+	};
+	
+	this.iter=function(callback){
+		self.session.send_command({
+			send: "\x04"+ this.id+"\x00",
+		    parser:self.session.getResponse,
+		    callback:callback
+		});
+    };
+    
+	this.execute=function(callback){
+		self.session.send_command({
+			send: "\x05"+ this.id+"\x00",
+		    parser:self.session.getResponse,
+		    callback:callback
+		});
+    };
+
+	this.info=function(callback){
+		self.session.send_command({
+			send: "\x06"+ this.id+"\x00",
+		    parser:self.session.getResponse,
+		    callback:callback
+		});
+    };
+
+	this.options=function(callback){
+		self.session.send_command({
+			send: "\x07"+ this.id+"\x00",
+		    parser:self.session.getResponse,
+		    callback:callback
+		});
+    };
+
+	// request id
+	session.send_command({
+			send : CHR0+query + CHR0,
+			parser : self.getResponse,
+			callback : function(err,reply){
+				console.log("query",id);
+			}
+	});		
+};
 
 
 function to_array(args) {

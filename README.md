@@ -9,6 +9,7 @@ This is BaseX client for node.js. Currently this client has minimal functionalit
 * Efficient support of the W3C XPath/XQuery Recommendations 
 * Full Text search and Update Extensions.
 * XSLT 
+
 ## Installing the BaseX Node client
 
 	andy@ThinkPad-T42:/tmp/apb$ npm install ~/Downloads/apb2006-basex-node-0.1-10-g3be132b.tar.gz 

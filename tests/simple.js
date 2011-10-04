@@ -1,6 +1,6 @@
 // standalone basex test
 var basex =require("../index");
-basex.debug_mode = false;
+basex.debug_mode = true;
 
 var s=new basex.Session();
 s.execute("info",basex.print);
