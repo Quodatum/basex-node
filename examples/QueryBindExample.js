@@ -12,14 +12,14 @@ var input = "declare variable $name external; for $i in 1 to 10 return element {
 var query = session.query(input);
 
 // bind variable
-query.bind("name", "number");
+query.bind("name", "number",basex.print);
 
 // print results
-//query.execute(basex.print);
+query.execute(basex.print);
 
 // close query instance
-//query.close();
+query.close();
 
 // close session
-//session.close();
+session.close();
 

@@ -70,6 +70,7 @@ var BaseXStream = function(host, port, username, password) {
 	stream.on("data", function(reply) {
 		self.buffer += reply;
 		if (exports.debug_mode) {
+			console.log("<<");
 			console.dir(self.buffer);
 		};
 
@@ -91,7 +92,9 @@ var BaseXStream = function(host, port, username, password) {
 				if (exports.debug_mode) {
 					console.log("response: ",r);
 				};
-				self.current_command.callback(null,r);
+				if(self.current_command.callback){
+					self.current_command.callback(null,r);
+				}
 				self.current_command=null;
 				self.doNext();
 			}
@@ -231,16 +234,21 @@ var BaseXStream = function(host, port, username, password) {
     this.doNext=function(){
     	if(self.command_queue.length==0)return
     	self.current_command=self.command_queue.shift();
-    	if (exports.debug_mode) {
-    		console.log(">>",self.current_command.send);
+    	var s=self.current_command.send;
+    	if(typeof s === "function"){
+    		s=s();
     	};
-    	self.stream.write(self.current_command.send);
+    	if (exports.debug_mode) {
+    		console.log(">>",s);
+    	};
+    	self.stream.write(s);
     	self.commands_sent+=1;
     };
 	events.EventEmitter.call(this);
 };
 
 //query
+// send is function as needs id 
 var Query = function(session,query){
 	this.session=session;
 	this.query=query;
@@ -249,7 +257,7 @@ var Query = function(session,query){
 	
     this.close=function(callback){
 		self.session.send_command({
-			send: "\x02"+ self.id+"\x00",
+			send:function(){return "\x02"+ self.id+"\x00"},
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
@@ -257,18 +265,20 @@ var Query = function(session,query){
     
 	this.bind=function(name,value,callback){
 		console.log("BIND",self.id);
-		/*
+		 
 		self.session.send_command({
-			send: "\x03"+ self.id +"\x00"+name+"\x00"+value+"\x00",
+			send:function(){
+				return "\x03"+ self.id +"\x00"+name+"\x00"+value+"\x00"
+			},
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
-		*/
+		 
 	};
 	
 	this.iter=function(callback){
 		self.session.send_command({
-			send: "\x04"+ self.id+"\x00",
+			send:function(){return "\x04"+ self.id+"\x00"},
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
@@ -276,7 +286,7 @@ var Query = function(session,query){
     
 	this.execute=function(callback){
 		self.session.send_command({
-			send: "\x05"+ self.id+"\x00",
+			send: function(){return "\x05"+ self.id+"\x00"},
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
@@ -284,7 +294,7 @@ var Query = function(session,query){
 
 	this.info=function(callback){
 		self.session.send_command({
-			send: "\x06"+ self.id+"\x00",
+			send:function(){return "\x06"+ self.id+"\x00"},
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
@@ -292,7 +302,7 @@ var Query = function(session,query){
 
 	this.options=function(callback){
 		self.session.send_command({
-			send: "\x07"+ self.id+"\x00",
+			send: function(){return "\x07"+ self.id+"\x00"},
 		    parser:self.session.getResponse,
 		    callback:callback
 		});
@@ -310,16 +320,6 @@ var Query = function(session,query){
 	});		
 };
 
-
-function to_array(args) {
-	var len = args.length, arr = new Array(len), i;
-
-	for (i = 0; i < len; i += 1) {
-		arr[i] = args[i];
-	}
-
-	return arr;
-}
 
 function md5(str) {
 	return crypto.createHash('md5').update(str).digest("hex");

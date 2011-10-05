@@ -1,6 +1,6 @@
 {   "name" : "basex",
-    "version" : "0.2.0",
-    "description" : "BaseX client library",
+    "version" : "0.3.0",
+    "description" : "A BaseX (XML database) client library",
     "keywords": [
     "xml",
     "xquery",

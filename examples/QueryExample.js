@@ -13,10 +13,13 @@ var session = new basex.Session("localhost", 1984, "admin", "admin");
 var input = 'for $i in 1 to 10 return <xml>Text { $i }</xml>';
 var query = session.query(input);
 
+query.execute(basex.print);
+query.info(basex.print);
+query.options(basex.print);
 // loop through all results
-while(query.more()) {
-  console.log(query->next());
-}
+//while(query.more()) {
+//  console.log(query->next());
+//}
 
 // close query instance
 query.close();

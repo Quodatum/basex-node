@@ -1,8 +1,0 @@
-execute
-query
-create
-add
-replace
-store
-info
-close
