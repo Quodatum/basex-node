@@ -1,8 +1,13 @@
 The BaseX Node client is asynchronous.  Most functions take an option
 callback function as last argument. The callback function will be 
-called when the results are available with two arguments.
-The first will contain any error information or null if there is no error
-the second will hold the result.
+called with two arguments when the results are available .
+The first `err` will contain any error information or null if there is no error
+The second `reply` will hold the reply. The reply is often an object with
+ `result\ and `info` properties.
+
+		{ result: '1 2 3 4 5 6 7 8 9 10',
+		  info: '\nQuery executed in 0.38 ms.\n' }
+
 The utility function `print` shows the syntax:
  
 		function print(err, reply) {
