@@ -16,4 +16,4 @@ function list(req, res) {
 var session = new basex.Session();
 http.createServer(list).listen(9000);
 
-console.log('Server running at http://127.0.0.1:9000');
+console.log('Server running at port:9000');

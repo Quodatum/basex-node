@@ -15,7 +15,7 @@ var query = session.query(input);
 
 query.execute(basex.print);
 query.info(basex.print);
-query.options(basex.print);
+//query.options(basex.print);
 // loop through all results
 //while(query.more()) {
 //  console.log(query->next());

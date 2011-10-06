@@ -4,7 +4,7 @@
  */
 
 var basex  = require("../index");
-basex.debug_mode = true;
+//basex.debug_mode = true;
 var session = new basex.Session("localhost", 1984, "admin", "admin");
 
 // create query instance
@@ -12,7 +12,7 @@ var input = "declare variable $name external; for $i in 1 to 10 return element {
 var query = session.query(input);
 
 // bind variable
-query.bind("name", "number",basex.print);
+query.bind("name", "nodex",basex.print);
 
 // print results
 query.execute(basex.print);

@@ -3,7 +3,7 @@
  *
  */
 var basex = require("../index");
-basex.debug_mode = true;
+//basex.debug_mode = true;
 // create session
 var client = new basex.Session("localhost", 1984, "admin", "admin");
 
@@ -17,4 +17,4 @@ client.execute("xquery /", basex.print);
 client.execute("drop db database", basex.print);
 
 // close session
-client.close(basex.print);
+client.close();

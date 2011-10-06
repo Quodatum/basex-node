@@ -12,13 +12,14 @@ var cmd2 = 'for $node in doc("factbook")//country order by xs:int($node/@populat
 
 
 var session = new basex.Session("localhost", 1984, "admin", "admin");
+/*
 @TODO  
   echo "<table border='0' cellspacing='2' cellpadding='4' width='20%'><tbody><tr style='text-align:center;'>";
   echo "<td style='text-align:center;background-color:#D7D7D7;border:#ffffff 1px solid;font-size:12pt;'></td>";
   echo "<td style='text-align:center;background-color:#D7D7D7;border:#ffffff 1px solid;font-size:12pt;'>Country</td>";
   echo "<td style='text-align:center;background-color:#D7D7D7;border:#ffffff 1px solid;font-size:12pt;'>Population</td>";
-  try {
-    $query = $session->query($cmd);
+*/
+    query = session->query($cmd);
     print $query->init();
     $query2 = $session->query($cmd2);
     print $query2->init();
@@ -40,10 +41,7 @@ var session = new basex.Session("localhost", 1984, "admin", "admin");
       }
     $query->close();
     $query2->close();
-  } catch (Exception $e) {
-    // print exception
-    print $e->getMessage();
-  }  
+ 
   echo "</tbody></table>";
   $query->close();
   // close session
