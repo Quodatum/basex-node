@@ -1,6 +1,6 @@
-Changelog
-=========
-## v0.3.0 - 2011-10-06
+## v0.3.1 - 2011-10-06
+Fixes.
+## v0.3.0 - 2011-10-05
 Query working except bind and iter.
 ## v0.2.0 - 2011-10-02
 Queue working. Callback working. Query not working
