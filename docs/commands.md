@@ -13,55 +13,57 @@ The utility function `print` shows the syntax:
 			}
 		}; 
 
-## Session
-var client=Session(host, port, username, password)
-	hostname (default="localhost")
-	port (default=1984)
-	username (default="admin")
-	password (default= "admin")
+## Create a Client Session
+		var session=Session(host, port, username, password)
+hostname (default="localhost")
+port (default=1984)
+username (default="admin")
+password (default= "admin")
 
-//Executes a command and returns the result:
+## Session commands
+    //Executes a command and returns the result:
 	session.execute(command,callback)
 
 	//Returns a query object for the specified query:
 	var query=session.query(query)
 
 	//Creates a database from an input stream:
-	session.create(name, in)
+	session.create(name, in,callback)
 
 	//Adds a document to the current database from an input stream:
-	, "add" // (String name, String target, InputStream in)
+	session.add( name,  target,  in,callback)
 
 	//Replaces a document with the specified input stream:
-	, "replace" // (String path, InputStream in)
+	session.replace( path,  in,callback)
 
 	//Stores raw data at the specified path:
-	, "store" // (String path, InputStream in)
+	session.store( path,  in,callback)
 
 	//Watches the specified event:
-	, "watch" // (String name, Event notifier)
+	session.watch( name, callback)
 
 	//Unwatches the specified event:
-	, "unwatch" // (String name)
+	session.unwatch( name,callback)
 
 	//Returns process information:
-	, "info"
+	session.info(callback)
 
 	//Closes the session:
-	, "close"
+	session.close()
  
-## execute
-
-## create
-## add
-## replace
-## store
-## info
-## close
 
 ## The query object
 
-
+   query.bind(name,value,callback);
+   
+   query.close();
+   
+   query.execute(callback);
+   
+   query.info(callback);
+   
+   query.options(callback);
+   
 ## Debugging
 The basex module variable `debug_mode` can be set to true to 
 print diagnostic info to the console.

@@ -1,29 +1,29 @@
 basex - a node.js Basex client 
 ===========================
 
-This is BaseX client for node.js. Currently this client has minimal functionality. 
+This is BaseX client for node.js. Work in progress. 
 
-[BaseX](http://basex.org/) is an XML database. BaseX has the following features:
- 
-* High-performance database storage with text, attribute, full-text and path indexes.
-* Efficient support of the W3C XPath/XQuery Recommendations 
-* Full Text search and Update Extensions.
-* XSLT 
+[BaseX](http://basex.org/) is an XML database. BaseX is a lightweight JAVA server
+that supports XPath, Xquery and XSLT. It includes Full Text search and Update Extensions.
+
+[documentation](docs/commands.md), [release notes](changelog.md)
 
 ## Installing the BaseX Node client
 
-	andy@ThinkPad-T42:/tmp/apb$ npm install ~/Downloads/apb2006-basex-node-0.1-10-g3be132b.tar.gz 
-	basex@0.1.0 ./node_modules/basex 
-	andy@ThinkPad-T42:/tmp/apb$ ls
-	node_modules
-	andy@ThinkPad-T42:/tmp/apb$ cd node_modules/
-	andy@ThinkPad-T42:/tmp/apb/node_modules$ ls
-	basex
-	andy@ThinkPad-T42:/tmp/apb/node_modules$ cd basex
-	andy@ThinkPad-T42:/tmp/apb/node_modules/basex$ ls
-	changelog.md  examples  index.old.js  LICENSE   package.json  tests
-	docs          index.js  lib           Makefile  README.md
-	andy@ThinkPad-T42:/tmp/apb/node_modules/basex$ node tests/simple.js
+The easiest way to install is using `npm` 
+   
+		andy@ThinkPad-T42:/tmp$ mkdir project1;cd project1
+		andy@ThinkPad-T42:/tmp/project1$ npm install basex
+		basex@0.3.0 ./node_modules/basex 
+Test it. This assumes BaseX is running on the host
+		andy@ThinkPad-T42:/tmp/project1$ cd node_modules/basex/examples/
+		andy@ThinkPad-T42:/tmp/project1/node_modules/basex/examples$ node Example.js 
+		milliseconds: 0
+		{ result: '1 2 3 4 5 6 7 8 9 10',
+		  info: '\nQuery executed in 0.38 ms.\n' }
+		end
+		close
+		andy@ThinkPad-T42:/tmp/project1/node_modules/basex/examples$ 
 
 
 ## Installing BaseX
@@ -32,11 +32,12 @@ Requires Java.
 tested against version 6.7.1
 1. run the basexserver script
 
-## Tests
-`node tests/simple.js`
 
-## Changelog
-See changelog.md for release notes
+## Tests
+..
+
+## TODO
+Error handling, watch, reconnect...
 
 ## Inspiration
 Parts taken from https://github.com/mranney/node_redis
