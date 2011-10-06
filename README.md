@@ -16,6 +16,7 @@ The easiest way to install is using `npm`
 		andy@ThinkPad-T42:/tmp/project1$ npm install basex
 		basex@0.3.0 ./node_modules/basex 
 Test it. This assumes BaseX is running on the host
+
 		andy@ThinkPad-T42:/tmp/project1$ cd node_modules/basex/examples/
 		andy@ThinkPad-T42:/tmp/project1/node_modules/basex/examples$ node Example.js 
 		milliseconds: 0
