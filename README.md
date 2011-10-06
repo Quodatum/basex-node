@@ -6,7 +6,6 @@ This is BaseX client for node.js. Work in progress.
 [BaseX](http://basex.org/) is an XML database. BaseX is a lightweight JAVA server
 that supports XPath, Xquery and XSLT. It includes Full Text search and Update Extensions.
 
-[documentation](docs/commands.md), [release notes](changelog.md)
 
 ## Installing the BaseX Node client
 
