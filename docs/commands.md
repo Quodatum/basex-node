@@ -1,4 +1,4 @@
-The BaseX Node client is asynchronous.  Most functions take an option
+The BaseX Node client is asynchronous.  Most functions take an optional
 callback function as last argument. The callback function will be 
 called with two arguments when the results are available .
 The first `err` will contain any error information or null if there is no error
@@ -19,7 +19,7 @@ The utility function `print` shows the syntax:
 		}; 
 
 ## Create a Client Session
-                var basex=require("basex");
+        var basex=require("basex");
 		var session=basex.Session(host, port, username, password)
 hostname (default="localhost")
 port (default=1984)
