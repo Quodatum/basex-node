@@ -19,7 +19,8 @@ The utility function `print` shows the syntax:
 		}; 
 
 ## Create a Client Session
-		var session=Session(host, port, username, password)
+                var basex=require("basex");
+		var session=basex.Session(host, port, username, password)
 hostname (default="localhost")
 port (default=1984)
 username (default="admin")
