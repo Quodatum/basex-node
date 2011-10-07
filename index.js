@@ -17,7 +17,7 @@ var states = {
 	CONNECTED : 3,
 	CLOSING : 4
 };
-var options = {};
+
 var CHR0 = "\x00";
 
 var BaseXStream = function(host, port, username, password) {
@@ -37,11 +37,8 @@ var BaseXStream = function(host, port, username, password) {
 	this.reset = function() {
 		this.state = states.DISCONNECTED;
 		this.buffer = "";
-		this.command_queue = new Queue(); // holds sent commands 
-		
-//		this.offline_queue = new Queue(); // holds commands issued but not
-											// able to
-		// be sent
+		this.command_queue = new Queue(); // holds commands to send
+
 		this.parser = function() {
 			var timestamp = self.readline();
 			self.send(self.username);
@@ -153,7 +150,7 @@ var BaseXStream = function(host, port, username, password) {
 		
 	};
 	
-	// Executes a command and returns the result:
+	// add command and returns the result:
 	this.execute = function(cmd, callback) {
         self.send_command({
 			send : cmd ,
@@ -223,6 +220,7 @@ var BaseXStream = function(host, port, username, password) {
 				callback : function(err,reply){
 					console.log("close",reply);	
 					self.stream.end();
+					//@TODO wrong here
 					if(callback)callback(err,reply);
 					}
 			});		

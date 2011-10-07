@@ -1,0 +1,12 @@
+<books>
+	<book>
+		<title>XSLT Programmer´s Reference</title>
+		<author>Michael H. Kay</author>
+	</book>
+	<book>
+		<title>XSLT</title>
+		<author>Doug Tidwell</author>
+		<author>Simon St. Laurent</author>
+		<author>Robert Romano</author>
+	</book>
+</books>

@@ -9,7 +9,8 @@ that supports XPath, Xquery and XSLT. It includes Full Text search and Update Ex
 
 ## Installing the BaseX Node client
 
-The easiest way to install is using `npm` 
+The easiest way to install is using `npm`. 
+This module is available from the npm [repository](http://search.npmjs.org/#/basex)
    
 		andy@ThinkPad-T42:/tmp$ mkdir project1;cd project1
 		andy@ThinkPad-T42:/tmp/project1$ npm install basex

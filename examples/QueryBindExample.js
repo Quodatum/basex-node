@@ -18,6 +18,7 @@ query.bind("name", "nodex",basex.print);
 query.execute(basex.print);
 
 query.info(basex.print);
+query.iter(basex.print);
 // close query instance
 query.close();
 
