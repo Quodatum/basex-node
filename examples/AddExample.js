@@ -5,7 +5,7 @@
 var basex = require("../index");
 // create session
 var client = new basex.Session("localhost", 1984, "admin", "admin");
-
+basex.debug_mode = true;
 // create new database
 client.execute("create db database", basex.print);
 

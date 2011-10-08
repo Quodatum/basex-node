@@ -8,9 +8,8 @@ function print(err, reply) {
 	if (err) {
 		console.log("Error: " + err);
 	} else {
-		console.dir(reply);
 		var t2=new Date();
-		console.log("At close milliseconds:",t2-t0);
+		console.log("At close ",t2-t0," milliseconds");
 	}
 }; 
 var t0=new Date();

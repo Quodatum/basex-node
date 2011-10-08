@@ -12,13 +12,15 @@ var input = "declare variable $name external; for $i in 1 to 10 return element {
 var query = session.query(input);
 
 // bind variable
-query.bind("name", "nodex",basex.print);
+query.bind("name", "nodex","",basex.print);
 
 // print results
 query.execute(basex.print);
-
+// do it again 
+query.bind("name", "again","",basex.print);
+query.execute(basex.print);
 query.info(basex.print);
-query.iter(basex.print);
+
 // close query instance
 query.close();
 

@@ -36,6 +36,7 @@ var BaseXStream = function(host, port, username, password) {
 	this.current_cmd=null;
 	this.reset = function() {
 		this.state = states.DISCONNECTED;
+		this.closefn=null;
 		this.buffer = "";
 		this.command_queue = new Queue(); // holds commands to send
 
@@ -60,7 +61,7 @@ var BaseXStream = function(host, port, username, password) {
 	stream.on("connect", function() {
 		self.state = states.CONNECTING;
 		if (exports.debug_mode) {
-			console.log("connected");
+			console.log("stream connected");
 		};
 	});
 
@@ -75,7 +76,7 @@ var BaseXStream = function(host, port, username, password) {
 			self.parser();
 			self.state = states.AUTHORIZE;
 		} else if (self.state == states.AUTHORIZE) {
-			if (!0 == self.read().charCodeAt(0))
+			if (!self.ok())
 				throw "Access denied.";
 			self.state = states.CONNECTED;
 			if (exports.debug_mode) {
@@ -99,15 +100,21 @@ var BaseXStream = function(host, port, username, password) {
 	});
 
 	stream.on("error", function(msg) {
-		console.log("error", msg);
+		console.log("stream error", msg);
 	});
 
 	stream.on("close", function() {
-		console.log("close");
+		if (exports.debug_mode) {
+			console.log("stream close");
+		};
+		if(self.closefn){
+			self.closefn();
+			self.closefn=null;
+		};
 	});
 
 	stream.on("end", function() {
-		console.log("end");
+		//console.log("stream end");
 	});
 
 	stream.on("drain", function() {
@@ -129,6 +136,9 @@ var BaseXStream = function(host, port, username, password) {
 		self.buffer = self.buffer.substr(1);
 		return ip;
 	};
+	this.ok=function(){
+		return self.read()==CHR0;
+	};
 	// read upto null
 	this.readline = function() {
 		var p = self.buffer.indexOf(CHR0);
@@ -140,16 +150,31 @@ var BaseXStream = function(host, port, username, password) {
 	};
 	this.getResponse = function() {
 		if (-1 != self.buffer.indexOf(CHR0)) {
-			var reply = {
-				result : self.readline(),
-				info : self.readline()
-			};
-			self.read();
-			return reply;
+			var result=self.readline();
+			var info =self.readline();
+			var ok=self.ok();
+			return {result:result,info:info};
 		}
 		
 	};
-	
+	// read line and byte
+	this.getResponse2 = function() {
+		if (-1 != self.buffer.indexOf(CHR0)) {
+			var reply=self.readline();
+			var ok=self.ok();
+			return {result:reply,ok:ok}
+		}
+		
+	};
+	this.readiter = function() {
+		console.log("reaqditer");
+		if (-1 != self.buffer.indexOf(CHR0)) {			
+			var ok=self.ok();
+			var reply=self.readline();
+			return {result:reply,ok:ok}
+		}
+		
+	};
 	// add command and returns the result:
 	this.execute = function(cmd, callback) {
         self.send_command({
@@ -166,7 +191,7 @@ var BaseXStream = function(host, port, username, password) {
 	this.create = function(name, input,callback) {
 		 self.send_command({
 				send : "\x08" + name+ CHR0+input,
-				parser : self.getResponse,
+				parser : self.getResponse2,
 				callback : callback
 			});		
 	};
@@ -174,7 +199,7 @@ var BaseXStream = function(host, port, username, password) {
 	this.add = function(name, target, input,callback) {
 		 self.send_command({
 				send : "\x09" + name + CHR0+target+CHR0+input,
-				parser : self.getResponse,
+				parser : self.getResponse2,
 				callback : callback
 			});		
 	};
@@ -182,7 +207,7 @@ var BaseXStream = function(host, port, username, password) {
 	this.replace = function(path, input,callback) {
 		 self.send_command({
 				send : "\x0C" + path + CHR0+input,
-				parser : self.getResponse,
+				parser : self.getResponse2,
 				callback : callback
 			});		
 	};
@@ -190,7 +215,7 @@ var BaseXStream = function(host, port, username, password) {
 	this.store = function(path, input,callback) {
 		 self.send_command({
 				send : "\x0D" + path + CHR0+input,
-				parser : self.getResponse,
+				parser : self.getResponse2,
 				callback : callback
 			});		
 	};
@@ -212,17 +237,12 @@ var BaseXStream = function(host, port, username, password) {
 				callback : callback
 			});		
 	};
-	// end the session
+	// end the session, sash callback, for stream end
 	this.close = function(callback) {
+		self.closefn=callback;
 		 self.send_command({
 				send : "exit" + CHR0,
 				parser : self.getResponse,
-				callback : function(err,reply){
-					console.log("close",reply);	
-					self.stream.end();
-					//@TODO wrong here
-					if(callback)callback(err,reply);
-					}
 			});		
 	};
 	// -------end of commands ---------
@@ -242,6 +262,7 @@ var BaseXStream = function(host, port, username, password) {
     	if(typeof s === "function"){
     		s=s();
     	};
+    	assert.equal(self.buffer.length,0,"buffer not empty:"+self.buffer);
     	self.send(s);
     };
 	events.EventEmitter.call(this);
@@ -258,17 +279,18 @@ var Query = function(session,query){
     this.close=function(callback){
 		self.session.send_command({
 			send:function(){return "\x02"+ self.id},
-		    parser:self.session.getResponse,
+		    parser:self.session.getResponse2,
 		    callback:callback
 		});
     };
     
-	this.bind=function(name,value,callback){	 
+	this.bind=function(name,value,type,callback){
+		var type="";
 		self.session.send_command({
 			send:function(){
-				return "\x03"+ self.id +"\x00"+name+"\x00"+value+"\x00"
+				return "\x03"+ self.id +"\x00"+name+"\x00"+value+"\x00"+type
 			},
-		    parser:self.session.getResponse,
+		    parser:self.session.getResponse2,
 		    callback:callback
 		});
 		 
@@ -277,7 +299,7 @@ var Query = function(session,query){
 	this.iter=function(callback){
 		self.session.send_command({
 			send:function(){return "\x04"+ self.id},
-		    parser:self.session.getResponse,
+		    parser:self.session.readiter,
 		    callback:callback
 		});
     };
@@ -285,7 +307,7 @@ var Query = function(session,query){
 	this.execute=function(callback){
 		self.session.send_command({
 			send: function(){return "\x05"+ self.id},
-		    parser:self.session.getResponse,
+		    parser:self.session.getResponse2,
 		    callback:callback
 		});
     };
@@ -293,7 +315,7 @@ var Query = function(session,query){
 	this.info=function(callback){
 		self.session.send_command({
 			send:function(){return "\x06"+ self.id},
-		    parser:self.session.getResponse,
+		    parser:self.session.getResponse2,
 		    callback:callback
 		});
     };
@@ -301,19 +323,20 @@ var Query = function(session,query){
 	this.options=function(callback){
 		self.session.send_command({
 			send: function(){return "\x07"+ self.id},
-		    parser:self.session.getResponse,
-		    callback:callback
+		    parser:self.session.getResponse2,
+		    callback:callback				
 		});
     };
 
 	// request id
 	session.send_command({
 			send : CHR0+query ,
-			parser : self.session.getResponse,
+			parser : self.session.getResponse2,
 			callback : function(err,reply){
 				self.id=reply.result;
-				console.log("query id: ",query);
-				console.log("ID: ",self.id);
+				if (exports.debug_mode) {
+					console.log("Query id: ",self.id,", query: ",query);
+				};
 			}
 	});		
 };

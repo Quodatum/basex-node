@@ -30,7 +30,7 @@ Test it. This assumes BaseX is running on the host
 ## Installing BaseX
 Requires Java.
 1. Download from http://basex.org/products/download/all-downloads/
-tested against version 6.7.1
+tested against BaseX version 7.0
 1. run the basexserver script
 
 

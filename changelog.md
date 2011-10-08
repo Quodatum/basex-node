@@ -1,3 +1,5 @@
+## v0.4.0 - 2011-10-09
+better response parsing, run against BaseX 7
 ## v0.3.1 - 2011-10-06
 Fixes.
 ## v0.3.0 - 2011-10-05
