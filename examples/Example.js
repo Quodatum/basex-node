@@ -4,6 +4,7 @@
  */
 var basex  = require("../index");
 var client = new basex.Session();
+basex.debug_mode = true;
 function print(err, reply) {
 	if (err) {
 		console.log("Error: " + err);
