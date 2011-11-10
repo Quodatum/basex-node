@@ -1,5 +1,6 @@
 ## v0.4.1 - 2011-11-09
 
+- err set in callbacks
 - connection error handling improved
 - better reply parsing including iteration
 - attempt to create http://vowsjs.org test suite
