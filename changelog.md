@@ -1,3 +1,9 @@
+## v0.4.1 - 2011-11-09
+
+- connection error handling improved
+- better reply parsing including iteration
+- attempt to create http://vowsjs.org test suite
+
 ## v0.4.0 - 2011-10-09
 better response parsing, run against BaseX 7
 ## v0.3.1 - 2011-10-06

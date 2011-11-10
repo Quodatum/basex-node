@@ -14,13 +14,13 @@
     ],
     "main": "./index.js",
     "scripts": {
-        "test": "node ./test.js"
+        "test": "node test/test.js"
     },
     "repository": {
         "type": "git",
         "url": "git://github.com/apb2006/basex-node.git"
     },
      "engines": {
-    "node": "0.4 "
+    "node": ">= 0.4 "
   }
 }

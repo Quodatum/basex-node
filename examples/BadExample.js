@@ -1,5 +1,5 @@
 /*
- * This example shows how new documents can be added.
+ * This example shows error response
  *
  */
 var basex = require("../index");
@@ -9,14 +9,10 @@ basex.debug_mode = true;
 // create new database
 client.execute("create db database", basex.print);
 
-// add document
-client.add("World.xml", "/world", "<x>Hello World!</x>", basex.print);
-
-// add document
-client.add("Universe.xml", "/u", "<x>Hello Universe!</x>", basex.print);
-
+//run query on database
+client.execute("xquery 2+2", basex.print);
 // run query on database
-client.execute("xquery /", basex.print);
+client.execute("xquery 2+", basex.print);
 
 // drop database
 client.execute("drop db database", basex.print);
