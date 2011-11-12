@@ -10,10 +10,10 @@ basex.debug_mode = true;
 client.execute("create db database", basex.print);
 
 // add document
-client.add("World.xml", "/world", "<x>Hello World!</x>", basex.print);
+client.add("/world/World.xml", "<x>Hello World!</x>", basex.print);
 
 // add document
-client.add("Universe.xml", "/u", "<x>Hello Universe!</x>", basex.print);
+client.add("Universe.xml", "<x>Hello Universe!</x>", basex.print);
 
 // run query on database
 client.execute("xquery /", basex.print);

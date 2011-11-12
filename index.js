@@ -213,9 +213,9 @@ var BaseXStream = function(host, port, username, password) {
 		});
 	};
 	// Adds a document to the current database from an input stream:
-	this.add = function(name, target, input, callback) {
+	this.add = function(path, input, callback) {
 		self.send_command({
-			send : "\x09" + name + CHR0 + target + CHR0 + input,
+			send : "\x09" + path + CHR0 + input,
 			parser : self.parser2,
 			callback : callback
 		});

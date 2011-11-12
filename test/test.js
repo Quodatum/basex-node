@@ -2,6 +2,7 @@
 var vows = require('vows'),
     basex =require("../index"),
     assert = require('assert');
+
 var client = new basex.Session();
 // Create a Test Suite
 vows.describe('Connect').addBatch({
@@ -17,7 +18,7 @@ vows.describe('Connect').addBatch({
     },
     'closing': {
         topic: function () { 	
-        	client.close();
+        	client.close(this.callback);
         	},
 
         'we get a value which': {

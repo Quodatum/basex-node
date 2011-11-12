@@ -34,16 +34,19 @@ Once BaseX is running, test it.
 ## Installing BaseX
 1. Java is required
 1. [Download](http://basex.org/products/download/all-downloads/) (http://basex.org/products/download/all-downloads/)
-(tested against BaseX version 7.0.1)
+(tested against BaseX version 7.0.2)
 1. Run `basexserver`
 
 
 ## Tests
-…
-
+A test suite using [vows](http://vowsjs.org/) can be run.
+```bash
+	node test/test.js 
+	·· ✓ OK » 2 honored (0.204s)
+```
 
 # TODO
- * Error handling
+ * pipeline send commands
  * watch
  * reconnect
 
