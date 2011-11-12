@@ -1,28 +1,11 @@
 {   "name" : "basex",
     "version" : "0.4.1",
     "description" : "A BaseX (XML database) client library",
-    "keywords": [
-    "xml",
-    "xquery",
-    "xslt",
-    "search",
-    "database"
-  ],
+    "keywords": ["xml", "xquery", "xslt", "search", "database" ],
     "author": "Andy Bunce ",
-    "contributors": [
-        "Andy Bunce"
-    ],
+    "contributors": [   "Andy Bunce"  ],
     "main": "./index.js",
-    "scripts": {
-        "test": "node test/test.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/apb2006/basex-node.git"
-    },
-    "devDependencies":{ 
-    "vows":">= 0.5"},
-     "engines": {
-    "node": ">= 0.4 "
-  }
+    "scripts": {     "test": "node test/test.js"  },
+    "repository": { "type": "git","url": "git://github.com/apb2006/basex-node.git" },
+    "engines": {   "node": ">= 0.4 "  }
 }

@@ -1,27 +1,34 @@
 // http://vowsjs.org/#installing
 
 var vows = require('vows'),
-    assert = require('assert');
-
+    assert = require('assert')
+    basex=require('../index.js');
+var client = new basex.Session();
 // Create a Test Suite
-vows.describe('Division by Zero').addBatch({
-    'when dividing a number by zero': {
-        topic: function () { return 42 / 0 },
+vows.describe('Connection').addBatch({
+    'get info': {
+        topic: function () {
+        	client.execute("info",this.callback);
+        	},
 
-        'we get Infinity': function (topic) {
-            assert.equal (topic, Infinity);
-        }
-    },
-    'but when dividing zero by zero': {
-        topic: function () { return 0 / 0 },
-
-        'we get a value which': {
-            'is not a number': function (topic) {
-                assert.isNaN (topic);
-            },
-            'is not equal to itself': function (topic) {
-                assert.notEqual (topic, topic);
-            }
-        }
+        'we get no error': function (err,reply) {
+            assert.equal (err, null);
+        },
+        'we get a reply': function (err,reply) {
+            assert.isObject (reply);
+        }	
     }
-}).run(); // Run it
+}).addBatch({
+	   'get info2': {
+	        topic: function () {
+	        	client.execute("info",this.callback);
+	        	},
+
+	        'we get no error': function (err,reply) {
+	            assert.equal (err, null);
+	        },
+	        'we get a reply': function (err,reply) {
+	            assert.isObject (reply);
+	        }	
+	    }	
+}).export(module); // Run it

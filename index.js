@@ -3,7 +3,12 @@
 // can set this to true to enable for all connections
 exports.debug_mode = false;
 
-var net = require("net"), util = require("util"), events = require("events"), crypto = require("crypto"), assert = require('assert'), Queue = require("./lib/queue").Queue;
+var net = require("net")
+  , util = require("util")
+  , events = require("events")
+  , crypto = require("crypto")
+  , assert = require('assert')
+  , Queue = require("./lib/queue").Queue;
 
 var states = {
 	DISCONNECTED : 0,
