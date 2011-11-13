@@ -35,14 +35,36 @@ Once BaseX is running, test it.
 1. Java is required
 1. [Download](http://basex.org/products/download/all-downloads/) (http://basex.org/products/download/all-downloads/)
 (tested against BaseX version 7.0.2)
-1. Run `basexserver`
+1. Run `basexserver &`
 
 
 ## Tests
 A test suite using [vows](http://vowsjs.org/) can be run.
 ```bash
-	node test/test.js 
-	·· ✓ OK » 2 honored (0.204s)
+		vows test/*  --spec
+		
+		♢ BaseX interface test
+		
+		  Request info
+		    ✓ we get no error
+		    ✓ we get a reply
+		  Send an valid xquery statement:  2+2
+		    ✓ we get no error
+		    ✓ and the answer is 4
+		  Send an invalid command:  2+
+		    ✓ we get an error
+		  Create a database
+		    ✓ we get no error
+		  Add a document
+		    ✓ we get no error
+		  Drop the database
+		    ✓ we get no error
+		  Send a xquery and iterate over the result items
+		    ✓ we get no error
+		    ✓ and the result is an array
+		 
+		✓ OK » 10 honored (0.253s)
+
 ```
 
 # TODO
