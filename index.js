@@ -202,7 +202,7 @@ var BaseXStream = function(host, port, username, password) {
 			var ok = self.ok();
 			var r={ok:ok};
 			if(ok){
-				r.result=reply
+				r.result=items
 			}else{
 				r.info=self.readline()
 			}
