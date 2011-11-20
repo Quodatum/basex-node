@@ -1,5 +1,7 @@
-// baseXclient
-// command queue has {string,parser,callback}
+/* baseX client
+ * andy bunce 2011
+ */
+
 // can set this to true to enable for all connections
 exports.debug_mode = false;
 
@@ -83,11 +85,11 @@ var BaseXStream = function(host, port, username, password) {
 			}
 			;
 			self.emit("connected", 1);
-			self.doNext();
+			self.sendQueueItem();
 		} else {
+			var r;
 			//console.log("parse");
-			var r = self.current_command.parser();
-			if (r) {
+			while(r = self.current_command.parser()){
 				if (exports.debug_mode) {
 					console.log("response: ", r);
 				}
@@ -97,8 +99,8 @@ var BaseXStream = function(host, port, username, password) {
 				}
 		
 				self.current_command=self.q_sent.shift();
-				self.blocked=false;
-				self.doNext();
+				//assert.equal(self.buffer.length, 0, "buffer not empty:" + self.buffer);
+                if(!self.current_command){break;}
 			}
 		}
 	});
@@ -124,7 +126,7 @@ var BaseXStream = function(host, port, username, password) {
 	});
 
 	stream.on("end", function() {
-		// console.log("stream end");
+		 console.log("stream end");
 	});
 
 	stream.on("drain", function() {
@@ -180,10 +182,13 @@ var BaseXStream = function(host, port, username, password) {
 		if (-1 != self.buffer.indexOf(CHR0)) {
 			var reply = self.readline();
 			var ok = self.ok();
-			return {
-				result : reply,
-				ok : ok
+			var r={ok:ok};
+			if(ok){
+				r.result=reply
+			}else{
+				r.info=self.readline()
 			}
+			return r
 		}
 
 	};
@@ -195,13 +200,16 @@ var BaseXStream = function(host, port, username, password) {
 				items.push(self.readline());
 			}
 			var ok = self.ok();
-			return {
-				result : items,
-				ok : ok
+			var r={ok:ok};
+			if(ok){
+				r.result=reply
+			}else{
+				r.info=self.readline()
 			}
+			return r
 		}
-
 	};
+	
 	// add command and returns the result:
 	this.execute = function(cmd, callback) {
 		self.send_command({
@@ -277,17 +285,17 @@ var BaseXStream = function(host, port, username, password) {
 	// 
 	this.send_command = function(cmd) {
 		self.q_pending.push(cmd);
-	//	console.log("queue pend: ",self.q_pending.length," sent:",self.q_sent.length)
-		self.doNext();
+		self.sendQueueItem();
 	};
-	// do the next queued command, if any
-	this.doNext = function() {
+	// do the next queued command, if any, true true if sent
+	this.sendQueueItem = function() {
+		//console.log("queues waiting send: ",self.q_pending.length,", waiting reply:",self.q_sent.length)
+
 		if (self.q_pending.length == 0
 				|| self.blocked 
 				|| self.state != states.CONNECTED)
-			return
+			return false
 			
-		self.blocked=true;
 		var cmd = self.q_pending.shift();
 		if(!self.current_command){
 			self.current_command=cmd;
@@ -295,9 +303,16 @@ var BaseXStream = function(host, port, username, password) {
 			self.q_sent.push(cmd);
 		};
 			
-		assert.equal(self.buffer.length, 0, "buffer not empty:" + self.buffer);
+		//assert.equal(self.buffer.length, 0, "buffer not empty:" + self.buffer);
 
 		self.send(cmd.send);
+		self.setBlock(cmd.blocking?true:false);
+		return true;
+	};
+	
+	this.setBlock=function(state){
+	  self.blocked=state;
+	  while(self.sendQueueItem()){};
 	};
 	events.EventEmitter.call(this);
 };
@@ -379,12 +394,12 @@ var Query = function(session, query) {
 		send : CHR0 + query,
 		parser : self.session.parser2,
 		callback : function(err, reply) {
-			self.blocked=false;
 			self.id = reply.result;
 			if (exports.debug_mode) {
 				console.log("Query id: ", self.id, ", query: ", query);
 			}
 			;
+			self.session.setBlock(false);
 		}
 	});
 };

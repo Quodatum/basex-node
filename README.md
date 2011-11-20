@@ -40,6 +40,7 @@ Once BaseX is running, test it.
 
 ## Tests
 A test suite using [vows](http://vowsjs.org/) can be run.
+
 ```bash
 		vows test/*  --spec
 		
@@ -64,7 +65,6 @@ A test suite using [vows](http://vowsjs.org/) can be run.
 		    ✓ and the result is an array
 		 
 		✓ OK » 10 honored (0.253s)
-
 ```
 
 # TODO
@@ -74,5 +74,4 @@ A test suite using [vows](http://vowsjs.org/) can be run.
 
 
 # Inspiration
-Parts taken from:
-https://github.com/mranney/node_redis
+Parts copied from [node_redis](https://github.com/mranney/node_redis)
