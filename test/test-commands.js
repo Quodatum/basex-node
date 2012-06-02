@@ -1,4 +1,4 @@
-/* test interface using vows
+/* basex-node test interface using vows
  * 
  * @TODO teardown connection
  */
@@ -85,7 +85,7 @@ vows.describe('BaseX interface test').addBatch({
 			var input = 'for $i in 1 to 10 return <xml>Text { $i }</xml>';
 			var query = session.query(input);
 
-			query.iter(this.callback);
+			query.results(this.callback);
 		},
 
 		'we get no error' : function(err, reply) {
@@ -117,7 +117,7 @@ vows.describe('BaseX interface test').addBatch({
 
 		},
 		'and the result is an array' : function(err, reply) {
-			assert.isArray(reply.result);
+			assert.isString(reply.result);
 		}
 	}
 }).export(module); // Run it

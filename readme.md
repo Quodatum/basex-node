@@ -3,15 +3,19 @@
 
 This is BaseX client for node.js. It is work in progress. 
 
-[BaseX](http://basex.org/) is an XML database.	Built as a lightweight Java server, BaseX supports XPath, XQuery, and XSLT.  
+[BaseX](http://basex.org/) is a very light-weight, high-performance and scalable
+ XML Database engine and XPath/XQuery 3.0 Processor, 
+ including full support for the W3C Update and Full Text extensions.
+Built as a lightweight Java server, BaseX also supports XSLT, Webdav and RestXQ.  
 
 
-It also boasts **full text search** and **update extensions**.
 
 
 ## Installing the BaseX Node client
 
-The best way to install this is with `npm` (available from [this repository](http://search.npmjs.org/#/basex)).
+To install with npm:
+
+npm install basex
 
 ```bash
 	$ mkdir project1;cd project1
@@ -22,7 +26,7 @@ The best way to install this is with `npm` (available from [this repository](htt
 Once BaseX is running, test it. 
 
 ```bash
-	$ cd node_modules/basex/examples/
+	$ cd examples/
 	$ node Example.js 
 	milliseconds: 0
 	{ result: '1 2 3 4 5 6 7 8 9 10',
@@ -34,12 +38,12 @@ Once BaseX is running, test it.
 ## Installing BaseX
 1. Java is required
 1. [Download](http://basex.org/products/download/all-downloads/) (http://basex.org/products/download/all-downloads/)
-(tested against BaseX version 7.0.2)
+(tested against BaseX version 7.2.1)
 1. Run `basexserver &`
 
 
 ## Tests
-A test suite using [vows](http://vowsjs.org/) can be run.
+There is a test suite, using [vows](http://vowsjs.org/) .
 
 ```bash
 		vows test/*  --spec
@@ -74,4 +78,9 @@ A test suite using [vows](http://vowsjs.org/) can be run.
 
 
 # Inspiration
-Parts copied from [node_redis](https://github.com/mranney/node_redis)
+Parts inspired by [node_redis](https://github.com/mranney/node_redis)
+To install with npm:
+
+#license
+
+BSD license

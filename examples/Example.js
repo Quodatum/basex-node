@@ -10,12 +10,15 @@ function print(err, reply) {
 		console.log("Error: " + err);
 	} else {
 		var t2=new Date();
-		console.log("Commands completed in ",t2-t0," milliseconds.");
+		console.log("Execution completed in ",t2-t0," milliseconds.");
 	}
 }; 
 var t0=new Date();
-client.execute("xquery 1 to 10",basex.print);
-client.close(print);
+client.execute("xquery 1 to 10",print);
+client.close(function(){
+	var t2=new Date();
+	console.log("Closed in ",t2-t0," milliseconds.");	
+});
 var t1=new Date();
 // not a true time because basex commands not yet done.
 console.log("Commands send in ",t1-t0," milliseconds.");

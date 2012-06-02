@@ -5,7 +5,8 @@
  *
  */
 var basex  = require("../index");
-basex.debug_mode = true;
+var log = require("../debug");
+basex.debug_mode = false;
   // create session
 var session = new basex.Session("localhost", 1984, "admin", "admin");
 
@@ -13,7 +14,7 @@ var session = new basex.Session("localhost", 1984, "admin", "admin");
 var input = 'for $i in 1 to 10 return <xml>Text { $i }</xml>';
 var query = session.query(input);
 
-query.iter(basex.print);
+query.results(log.print);
 //query.info(basex.print);
 //query.options(basex.print);
 // loop through all results

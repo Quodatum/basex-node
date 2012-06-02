@@ -3,23 +3,24 @@
  *
  */
 var basex = require("../index");
+var log = require("../debug");
 // create session
 var client = new basex.Session("localhost", 1984, "admin", "admin");
-basex.debug_mode = true;
+basex.debug_mode = false;
 // create new database
-client.execute("create db database", basex.print);
+client.execute("create db database", log.print);
 
 // add document
-client.add("/world/World.xml", "<x>Hello World!</x>", basex.print);
+client.add("/world/World.xml", "<x>Hello World!</x>", log.print);
 
 // add document
-client.add("Universe.xml", "<x>Hello Universe!</x>", basex.print);
+client.add("Universe.xml", "<x>Hello Universe!</x>", log.print);
 
 // run query on database
-client.execute("xquery /", basex.print);
+client.execute("xquery /", log.print);
 
 // drop database
-client.execute("drop db database", basex.print);
+client.execute("drop db database", log.print);
 
 // close session
 client.close();

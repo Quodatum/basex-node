@@ -8,7 +8,7 @@ The second `reply` will hold the reply. The reply is often an object with
 		{ result: '1 2 3 4 5 6 7 8 9 10',
 		  info: '\nQuery executed in 0.38 ms.\n' }
 
-The utility function `print` shows the syntax:
+The utility function `print` in the debug module shows the syntax:
  
 		function print(err, reply) {
 			if (err) {
@@ -21,16 +21,17 @@ The utility function `print` shows the syntax:
 ## Create a Client Session
         var basex=require("basex");
 		var session=basex.Session(host, port, username, password)
-hostname (default="localhost")
-port (default=1984)
-username (default="admin")
-password (default= "admin")
+The default values are:		
+		hostname (default="localhost")
+		port (default=1984)
+		username (default="admin")
+		password (default= "admin")
 
 ## Session commands
     //Executes a command and returns the result:
 	session.execute(command,callback)
 
-	//Returns a query object for the specified query:
+	//Returns a query object for the specified query, see below for more detail:
 	var query=session.query(query)
 
 	//Creates a database from an input stream:
@@ -46,7 +47,7 @@ password (default= "admin")
 	session.store( path,  in,callback)
 
 	//Watches the specified event:
-	session.watch( name, callback)
+	session.watch( name, notification,callback)
 
 	//Unwatches the specified event:
 	session.unwatch( name,callback)
@@ -55,7 +56,7 @@ password (default= "admin")
 	session.info(callback)
 
 	//Closes the session:
-	session.close()
+	session.close(callback)
  
 
 ## The query object
@@ -63,6 +64,8 @@ password (default= "admin")
    query.bind(name,value,callback);
    
    query.close();
+   
+   query.results(callback);
    
    query.execute(callback);
    

@@ -1,8 +1,9 @@
-/* baseX client
- * andy bunce 2011
- */
+/* BaseX Node.js client
+ * http://docs.basex.org/wiki/Server_Protocol
+* andy bunce 2011-2012
+*/
 
-// can set this to true to enable for all connections
+// set this to true to enable console.log msgs for all connections
 exports.debug_mode = false;
 
 var net = require("net")
@@ -10,6 +11,8 @@ var net = require("net")
   , events = require("events")
   , crypto = require("crypto")
   , assert = require('assert')
+  , Query = require("./lib/query").Query
+  , parser = require("./lib/parser")
   , Queue = require("./lib/queue").Queue;
 
 var states = {
@@ -20,7 +23,8 @@ var states = {
 	CLOSING : 4
 };
 
-var CHR0 = "\x00";
+var CHR0 = "\0";
+var tagid=0; // used to give each BaseXStream a unique .tag property
 
 var BaseXStream = function(host, port, username, password) {
 	var self = this;
@@ -28,22 +32,28 @@ var BaseXStream = function(host, port, username, password) {
 	this.host = host || "127.0.0.1";
 	this.username = username || "admin";
 	this.password = password || "admin";
-	this.connections = 0;
-	this.attempts = 1;
-
+	this.tag ="S"+(++tagid);
 	this.commands_sent = 0;
-	this.retry_delay = 250;
-	this.retry_backoff = 1.7;
-	this.subscriptions = false;	
+	// reset
 	this.reset = function() {
 		this.state = states.DISCONNECTED;
-		this.current_cmd = null;
+		this.current_command = null; //waiting for response to this
 		this.closefn = null;
 		this.blocked=false;  //can't send until reply
 		this.buffer = "";
 		this.q_pending = new Queue(); // holds commands to send
 		this.q_sent = new Queue(); // holds commands sent
-        
+		// event stuff
+		this.event={stream:null,
+				    en:{}, //names to notifiers
+				    buffer:"",
+				    parse:function(){ // intial \0 from event
+				    	var r=parser.popmsg(self.event,[])
+				    	if(!r.ok)throw "Bad event protocol";
+				          self.event.parse=self.parseEvent;
+				    	}
+		};
+		// initial parser for auth
 		this.parser = function() {
 			var timestamp = self.readline();
 			self.send(self.username);
@@ -60,7 +70,7 @@ var BaseXStream = function(host, port, username, password) {
 	stream.on("connect", function() {
 		self.state = states.CONNECTING;
 		if (exports.debug_mode) {
-			console.log("stream connected");
+			console.log(self.tag+": stream connected");
 		}
 		;
 	});
@@ -68,7 +78,7 @@ var BaseXStream = function(host, port, username, password) {
 	stream.on("data", function(reply) {
 		self.buffer += reply;
 		if (exports.debug_mode) {
-			console.log("<<");
+			console.log(self.tag+"<<");
 			console.dir(self.buffer);
 		}
 		;
@@ -81,7 +91,7 @@ var BaseXStream = function(host, port, username, password) {
 				throw "Access denied.";
 			self.state = states.CONNECTED;
 			if (exports.debug_mode) {
-				console.log("authorized");
+				console.log(self.tag+": authorized");
 			}
 			;
 			self.emit("connected", 1);
@@ -115,9 +125,13 @@ var BaseXStream = function(host, port, username, password) {
 
 	stream.on("close", function() {
 		if (exports.debug_mode) {
-			console.log("stream closed");
+			console.log(self.tag+": stream closed");
 		}
-		;
+		if(self.event.stream){
+			//console.log(self.tag+": event stream closing");
+			self.event.stream.destroySoon();
+			self.event.stream=null;
+		}
 		if (self.closefn) {
 			self.closefn();
 			self.closefn = null;
@@ -126,7 +140,7 @@ var BaseXStream = function(host, port, username, password) {
 	});
 
 	stream.on("end", function() {
-		 console.log("stream end");
+		 //console.log(self.tag+": stream end");
 	});
 
 	stream.on("drain", function() {
@@ -137,7 +151,7 @@ var BaseXStream = function(host, port, username, password) {
 		if (typeof s === "function") s = s();
 
 		if (exports.debug_mode) {
-			console.log(">>");
+			console.log(self.tag+">>");
 			console.dir(s + CHR0);
 		}
 		;
@@ -157,7 +171,12 @@ var BaseXStream = function(host, port, username, password) {
 	// read upto null
 	this.readline = function() {
 		var p = self.buffer.indexOf(CHR0);
-		assert.notEqual(p, -1, "no null");
+		if(p==-1){
+			console.dir(self.current_command);
+			console.dir(self.buffer);
+			assert.notEqual(p, -1, "no null");
+		}
+		
 		// console.log("data", l, p, buffer + ":");
 		var ip = self.buffer.substring(0, p);
 		self.buffer = self.buffer.substring(p + 1);
@@ -165,21 +184,25 @@ var BaseXStream = function(host, port, username, password) {
 	};
 	// standard parser read 2 lines and byte
 	this.parser1= function() {
-		if (-1 != self.buffer.indexOf(CHR0)) {
-			var result = self.readline();
-			var info = self.readline();
-			var ok = self.ok();
-			return {
-				result : result,
-				info : info,
-				ok : ok
-			};
-		}
-
+		return parser.popmsg(self,["result","info"])		
 	};
+	// read status byte
+	this.parserOk= function() {
+		return parser.popmsg(self,[])		
+	};
+	// watch response
+	this.parseEvent=function(){
+		var r=parser.popmsg(self.event,["name","msg"],false)
+		if(r){
+			var f=self.event.en[r.name];
+			f(r.name,r.msg)
+		}
+  	};
 	// read line and byte
 	this.parser2 = function() {
 		if (-1 != self.buffer.indexOf(CHR0)) {
+			//console.log(self.tag," parser2",self.current_command.send)
+			//console.dir(self.buffer)
 			var reply = self.readline();
 			var ok = self.ok();
 			var r={ok:ok};
@@ -207,6 +230,30 @@ var BaseXStream = function(host, port, username, password) {
 				r.info=self.readline()
 			}
 			return r
+		}
+	};
+	// parse watch response
+	this.parsewatch=function(){
+		// expect port,id,info,ok or info,ok
+		var flds=parser.popmsg(self,["eport","id","info"])
+		if (flds) {
+			//console.log(flds)
+			//console.dir(parts)
+			if(self.event.stream == null){
+				var stream = net.createConnection(flds.eport, self.host);
+				stream.setEncoding('utf-8');
+				stream.on("data", function(reply) {
+					if (exports.debug_mode) {
+						console.log("event<<");
+						console.dir(reply);
+					};
+					self.event.buffer+=reply;
+					self.event.parse()
+				});
+				self.event.stream = stream;	        
+                stream.write(flds.id + CHR0);
+			}
+			return flds;
 		}
 	};
 	
@@ -255,20 +302,19 @@ var BaseXStream = function(host, port, username, password) {
 		});
 	};
 	// watch
-	this.watch = function(name, callback) {
-		throw "@TODO watch";
+	this.watch = function(name,notification,callback) {
+		self.event.en[name]=notification;
 		self.send_command({
 			send : "\x0A" + name,
-			parser : self.parser1,
-			callback : callback
+			parser : self.parsewatch,
+			callback :callback
 		});
 	};
 	// unwatch
 	this.unwatch = function(name, callback) {
-		throw "@TODO unwatch";
 		self.send_command({
 			send : "\x0B" + name,
-			parser : self.parser1,
+			parser : self.parser2,
 			callback : callback
 		});
 	};
@@ -276,8 +322,8 @@ var BaseXStream = function(host, port, username, password) {
 	this.close = function(callback) {
 		self.closefn = callback;
 		self.send_command({
-			send : "exit" + CHR0,
-			parser : self.parser1,
+			send : "exit", 
+			parser : self.parserOk //sometime get this, timing
 		});
 	};
 	// -------end of commands ---------
@@ -287,7 +333,7 @@ var BaseXStream = function(host, port, username, password) {
 		self.q_pending.push(cmd);
 		self.sendQueueItem();
 	};
-	// do the next queued command, if any, true true if sent
+	// do the next queued command, if any, return true if sent
 	this.sendQueueItem = function() {
 		//console.log("queues waiting send: ",self.q_pending.length,", waiting reply:",self.q_sent.length)
 
@@ -299,6 +345,8 @@ var BaseXStream = function(host, port, username, password) {
 		var cmd = self.q_pending.shift();
 		if(!self.current_command){
 			self.current_command=cmd;
+			//console.log("current command: ",cmd.send)
+
 		}else{
 			self.q_sent.push(cmd);
 		};
@@ -317,92 +365,6 @@ var BaseXStream = function(host, port, username, password) {
 	events.EventEmitter.call(this);
 };
 
-// query
-// send is function as needs id
-var Query = function(session, query) {
-	this.session = session;
-	this.query = query;
-	this.id = null;
-	var self = this;
-
-	this.close = function(callback) {
-		self.session.send_command({
-			send : function() {
-				return "\x02" + self.id
-			},
-			parser : self.session.parser2,
-			callback : callback
-		});
-	};
-
-	this.bind = function(name, value, type, callback) {
-		var type = "";
-		self.session.send_command({
-			send : function() {
-				return "\x03" + self.id + "\x00" + name + "\x00" + value
-						+ "\x00" + type
-			},
-			parser : self.session.parser2,
-			callback : callback
-		});
-
-	};
-
-	this.iter = function(callback) {
-		self.session.send_command({
-			send : function() {
-				return "\x04" + self.id
-			},
-			parser : self.session.readiter,
-			callback : callback
-		});
-	};
-
-	this.execute = function(callback) {
-		self.session.send_command({
-			send : function() {
-				return "\x05" + self.id
-			},
-			parser : self.session.parser2,
-			callback : callback
-		});
-	};
-
-	this.info = function(callback) {
-		self.session.send_command({
-			send : function() {
-				return "\x06" + self.id
-			},
-			parser : self.session.parser2,
-			callback : callback
-		});
-	};
-
-	this.options = function(callback) {
-		self.session.send_command({
-			send : function() {
-				return "\x07" + self.id
-			},
-			parser : self.session.parser2,
-			callback : callback
-		});
-	};
-
-	// request id
-	session.send_command({
-		blocking : true,
-		send : CHR0 + query,
-		parser : self.session.parser2,
-		callback : function(err, reply) {
-			self.id = reply.result;
-			if (exports.debug_mode) {
-				console.log("Query id: ", self.id, ", query: ", query);
-			}
-			;
-			self.session.setBlock(false);
-		}
-	});
-};
 
 function md5(str) {
 	return crypto.createHash('md5').update(str).digest("hex");
@@ -410,12 +372,3 @@ function md5(str) {
 
 util.inherits(BaseXStream, events.EventEmitter);
 exports.Session = BaseXStream;
-// debug util
-function print(err, reply) {
-	if (err) {
-		console.log("Error: " + err);
-	} else {
-		console.dir(reply);
-	}
-};
-exports.print = print;

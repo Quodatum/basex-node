@@ -3,19 +3,20 @@
  *
  */
 var basex = require("../index");
+var log = require("../debug");
 // create session
 var client = new basex.Session("localhost", 1984, "admin", "admin");
 basex.debug_mode = true;
 // create new database
-client.execute("create db database", basex.print);
+client.execute("create db database", log.print);
 
 //run query on database
-client.execute("xquery 2+2", basex.print);
+client.execute("xquery 2+2", log.print);
 // run query on database
-client.execute("xquery 2+", basex.print);
+client.execute("xquery 2+", log.print);
 
 // drop database
-client.execute("drop db database", basex.print);
+client.execute("drop db database", log.print);
 
 // close session
 client.close();

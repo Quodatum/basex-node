@@ -1,3 +1,8 @@
+## v0.5.0 - 2012-06-04
+
+- Support for BaseX events
+- Rewrite of parser
+
 ## v0.4.1 - 2011-11-09
 
 - err set in callbacks

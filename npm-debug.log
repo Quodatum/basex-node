@@ -1,57 +1,57 @@
 info it worked if it ends with ok
 verbose cli [ 'node', '/usr/bin/npm', 'test' ]
 info using npm@1.0.105
-info using node@v0.4.12
+info using node@v0.6.10
+verbose /usr/bin/node node symlink
 verbose config file /home/andy/.npmrc
-verbose config file /home/andy/local/node/etc/npmrc
+verbose config file /usr/etc/npmrc
 verbose config file /usr/lib/node_modules/npm/npmrc
 silly testEngine { name: 'basex',
-silly testEngine   version: '0.4.2',
+silly testEngine   version: '0.5.0',
 silly testEngine   description: 'A BaseX (XML database) client library',
 silly testEngine   keywords: [ 'xml', 'xquery', 'xslt', 'search', 'database' ],
 silly testEngine   author: { name: 'Andy Bunce' },
 silly testEngine   contributors: [ { name: 'Andy Bunce' } ],
 silly testEngine   main: './index.js',
-silly testEngine   scripts: { test: 'vows test/vows.js' },
-silly testEngine   repository: 
-silly testEngine    { type: 'git',
-silly testEngine      url: 'git://github.com/apb2006/basex-node.git' },
-silly testEngine   engines: { node: '>= 0.4 ' },
-silly testEngine   _npmUser: { name: 'apb2006', email: 'bunce.andy@gmail.com' },
-silly testEngine   _id: 'basex@0.4.2',
+silly testEngine   scripts: { test: 'vows test/*.js' },
+silly testEngine   repository: { type: 'git', url: 'git://github.com/apb2006/basex-node.git' },
 silly testEngine   dependencies: {},
-silly testEngine   devDependencies: {},
+silly testEngine   devDependencies: { vows: '0.6.x' },
+silly testEngine   engines: { node: '>= 0.6 ' },
+silly testEngine   license: 'BSD',
+silly testEngine   _npmUser: { name: 'apb2006', email: 'bunce.andy@gmail.com' },
+silly testEngine   _id: 'basex@0.5.0',
 silly testEngine   _engineSupported: true,
 silly testEngine   _npmVersion: '1.0.105',
-silly testEngine   _nodeVersion: 'v0.4.12',
+silly testEngine   _nodeVersion: 'v0.6.10',
 silly testEngine   _defaultsLoaded: true }
 verbose caching /home/andy/workspace/basex-node/package.json
-verbose loadDefaults basex@0.4.2
+verbose loadDefaults basex@0.5.0
 verbose run-script [ 'pretest', 'test', 'posttest' ]
-info pretest basex@0.4.2
-info test basex@0.4.2
+info pretest basex@0.5.0
+info test basex@0.5.0
 verbose unsafe-perm in lifecycle true
-silly exec sh "-c" "vows test/vows.js"
+silly exec sh "-c" "vows test/*.js"
 silly spawning [ 'sh',
-silly spawning   [ '-c', 'vows test/vows.js' ],
+silly spawning   [ '-c', 'vows test/*.js' ],
 silly spawning   '/home/andy/workspace/basex-node' ]
-info basex@0.4.2 Failed to exec test script
-ERR! basex@0.4.2 test: `vows test/vows.js`
-ERR! `sh "-c" "vows test/vows.js"` failed with 1
+info basex@0.5.0 Failed to exec test script
+ERR! basex@0.5.0 test: `vows test/*.js`
+ERR! `sh "-c" "vows test/*.js"` failed with 1
 ERR! 
-ERR! Failed at the basex@0.4.2 test script.
+ERR! Failed at the basex@0.5.0 test script.
 ERR! This is most likely a problem with the basex package,
 ERR! not with npm itself.
 ERR! Tell the author that this fails on your system:
-ERR!     vows test/vows.js
+ERR!     vows test/*.js
 ERR! You can get their info via:
 ERR!     npm owner ls basex
 ERR! There is likely additional logging output above.
 ERR! 
-ERR! System Linux 2.6.35-30-generic
+ERR! System Linux 3.0.0-19-generic
 ERR! command "node" "/usr/bin/npm" "test"
 ERR! cwd /home/andy/workspace/basex-node
-ERR! node -v v0.4.12
+ERR! node -v v0.6.10
 ERR! npm -v 1.0.105
 ERR! code ELIFECYCLE
 verbose exit [ 1, true ]
