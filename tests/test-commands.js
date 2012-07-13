@@ -4,7 +4,7 @@
  */
 
 var vows = require('vows')
-	, assert = require('assert')
+	,assert = require('assert')
 	,basex = require('../index.js');
 
 var session = new basex.Session();

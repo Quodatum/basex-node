@@ -28,36 +28,44 @@ The default values are:
 		password (default= "admin")
 
 ## Session commands
-    //Executes a command and returns the result:
+
 	session.execute(command,callback)
+Executes a command on the server calls `callback` with the result.
 
-	//Returns a query object for the specified query, see below for more detail:
+
 	var query=session.query(query)
+Returns a query object for the specified query, see below for more detail.
 
-	//Creates a database from an input stream:
-	session.create(name, in,callback)
 
-	//Adds a document to the current database from an input stream:
-	session.add( name,  target,  in,callback)
+	session.create(name,in,callback)
+Creates a database from an input stream.
 
-	//Replaces a document with the specified input stream:
-	session.replace( path,  in,callback)
+	session.add(name,target,in,callback)
+Adds a document to the current database from an input stream.	
 
-	//Stores raw data at the specified path:
-	session.store( path,  in,callback)
+	session.replace(path,in,callback)
+Replaces a document with the specified input stream.
+    
 
-	//Watches the specified event:
-	session.watch( name, notification,callback)
+	session.store(path,in,callback)
+Stores raw data at the specified path.
 
-	//Unwatches the specified event:
-	session.unwatch( name,callback)
 
-	//Returns process information:
+	session.watch(name,notification,callback)
+Request notifications for event with `name`. The function `notification` is called
+each time an event with the name is received. The signature is `notification(name,data)`.
+
+
+	session.unwatch(name,callback)
+Unwatches the specified event.
+
+
 	session.info(callback)
+Returns process information.
 
-	//Closes the session:
+
 	session.close(callback)
- 
+Closes the session. 
 
 ## The query object
 

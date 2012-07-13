@@ -10,7 +10,6 @@ Built as a lightweight Java server, BaseX also supports XSLT, Webdav and RestXQ.
 
 
 
-
 ## Installing the BaseX Node client
 
 To install with npm:
@@ -18,9 +17,10 @@ To install with npm:
 npm install basex
 
 ```bash
-	$ mkdir project1;cd project1
+	$ mkdir myproject
+	cd myproject
 	$ npm install basex
-	basex@0.3.0 ./node_modules/basex 
+	basex@0.5.0 ./node_modules/basex 
 ```
 
 Once BaseX is running, test it. 
@@ -37,16 +37,16 @@ Once BaseX is running, test it.
 
 ## Installing BaseX
 1. Java is required
-1. [Download](http://basex.org/products/download/all-downloads/) (http://basex.org/products/download/all-downloads/)
-(tested against BaseX version 7.2.1)
-1. Run `basexserver &`
+1. [Download](http://basex.org/products/download/all-downloads/) and install BaseX
+(tested against version 7.3)
+1. Run `basexserver -S`
 
 
 ## Tests
 There is a test suite, using [vows](http://vowsjs.org/) .
 
 ```bash
-		vows test/*  --spec
+		vows tests/*  --spec
 		
 		♢ BaseX interface test
 		
@@ -71,6 +71,10 @@ There is a test suite, using [vows](http://vowsjs.org/) .
 		✓ OK » 10 honored (0.253s)
 ```
 
+# API specification
+
+See commands.md in the docs folder for details of the API.
+
 # TODO
  * pipeline send commands
  * watch
@@ -79,7 +83,7 @@ There is a test suite, using [vows](http://vowsjs.org/) .
 
 # Inspiration
 Parts inspired by [node_redis](https://github.com/mranney/node_redis)
-To install with npm:
+[BaseX Java client](https://github.com/BaseXdb/basex-examples/blob/master/src/main/java/org/basex/examples/api/BaseXClient.java)
 
 #license
 

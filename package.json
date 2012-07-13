@@ -5,7 +5,7 @@
     "author": "Andy Bunce ",
     "contributors": [   "Andy Bunce"  ],
     "main": "./index.js",
-    "scripts": { "test": "vows test/*.js"  },
+    "scripts": { "test": "vows tests/*.js"  },
     "repository": { "type": "git","url": "git://github.com/apb2006/basex-node.git" },
     "dependencies" : {  },
     "devDependencies": { "vows" : "0.6.x" },
