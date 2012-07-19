@@ -201,25 +201,7 @@ var BaseXStream = function(host, port, username, password) {
 		}
 
 	};
-	// Iterator: returns array of items:
-	this.readiter = function() {
-		if (-1 != self.buffer.indexOf("\0")) {
-			var items = [];
-			while (!self.ok()) {
-				items.push(self.readline());
-			}
-			var ok = self.ok();
-			var r = {
-				ok : ok
-			};
-			if (ok) {
-				r.result = items
-			} else {
-				r.info = self.readline()
-			}
-			return r
-		}
-	};
+	
 
 	// add command and returns the result:
 	this.execute = function(cmd, callback) {

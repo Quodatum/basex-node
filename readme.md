@@ -14,7 +14,7 @@ Built as a lightweight Java server, BaseX also supports XSLT, Webdav and RestXQ.
 
 To install with npm:
 
-npm install basex
+`npm install basex`
 
 ```bash
 	$ mkdir myproject
@@ -41,7 +41,11 @@ Once BaseX is running, test it.
 (tested against version 7.3)
 1. Run `basexserver -S`
 
+## API specification
 
+See [commands.md](https://github.com/apb2006/basex-node/blob/master/docs/commands.md)
+ in the docs folder for details of the API.
+ 
 ## Tests
 There is a test suite, using [vows](http://vowsjs.org/) .
 
@@ -71,18 +75,14 @@ There is a test suite, using [vows](http://vowsjs.org/) .
 		✓ OK » 10 honored (0.253s)
 ```
 
-# API specification
-
-See commands.md in the docs folder for details of the API.
 
 # TODO
- * pipeline send commands
- * watch
+ * stream i/o
  * reconnect
 
 
 # Inspiration
-Parts inspired by [node_redis](https://github.com/mranney/node_redis)
+Parts inspired by [node_redis](https://github.com/mranney/node_redis), 
 [BaseX Java client](https://github.com/BaseXdb/basex-examples/blob/master/src/main/java/org/basex/examples/api/BaseXClient.java)
 
 #license

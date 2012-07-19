@@ -1,8 +1,9 @@
 ## v0.5.0 - 2012-07-15
 
+- Major bugs fixed
 - Support for BaseX events
 - Rewrite of parser
-- still buggy
+
 
 ## v0.4.1 - 2011-11-09
 

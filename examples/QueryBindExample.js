@@ -9,18 +9,16 @@ var log = require("../debug");
 var session = new basex.Session("localhost", 1984, "admin", "admin");
 
 // create query instance
-var input = "declare variable $name external; for $i in 1 to 10 return element { $name } { $i }";
+var input = "declare variable $name external; for $i in 1 to 1000 return element { $name } { $i }";
 var query = session.query(input);
 
 // bind variable
 query.bind("name", "nodex","",log.print);
-
+query.info(log.print);
 // print results
 query.execute(log.print);
-// do it again 
-query.bind("name", "again","",log.print);
-query.execute(log.print);
-query.info(log.print);
+
+
 
 // close query instance
 query.close();
