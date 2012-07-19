@@ -1,3 +1,6 @@
+## v0.5.1 - 2012-07-19
+- readline fixed
+
 ## v0.5.0 - 2012-07-15
 
 - Major bugs fixed

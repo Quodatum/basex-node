@@ -8,7 +8,7 @@ var d = require("../debug");
 // create sessions
 var session1 = new basex.Session("localhost", 1984, "admin", "admin");
 var session2 = new basex.Session("localhost", 1984, "admin", "admin");
-basex.debug_mode = false;
+basex.debug_mode = true;
 
 function watchCallback(name,msg){
 	console.log("watch update-----> ",msg)

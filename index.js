@@ -34,6 +34,7 @@ var BaseXStream = function(host, port, username, password) {
 	this.password = password || "admin";
 	this.tag = "S" + (++tagid);
 	this.commands_sent = 0;
+	this.parser2part=null; // parser2 flag
 	// reset
 	this.reset = function() {
 		this.state = states.DISCONNECTED;
@@ -47,10 +48,7 @@ var BaseXStream = function(host, port, username, password) {
 		this.event = null;
 		// initial parser for auth
 		this.parser = function() {
-			var timestamp = self.readline();
-			self.send(self.username+"\0");
-			var s = md5(md5(self.password) + timestamp);
-			self.send(s+"\0");
+			return parser.popLine(self) //timestamp
 		};
 	};
 	this.reset();
@@ -74,8 +72,13 @@ var BaseXStream = function(host, port, username, password) {
 		}
 
 		if (self.state == states.CONNECTING) {
-			self.parser();
-			self.state = states.AUTHORIZE;
+			var r=self.parser();
+			if(r){
+				self.send(self.username+"\0");
+				var s = md5(md5(self.password) + r.data);
+				self.send(s+"\0");
+				self.state = states.AUTHORIZE;
+			}
 		} else if (self.state == states.AUTHORIZE) {
 			if (!self.ok())
 				throw "Access denied.";
@@ -159,20 +162,7 @@ var BaseXStream = function(host, port, username, password) {
 	this.ok = function() {
 		return self.read() == "\0";
 	};
-	// read upto null
-	this.readline = function() {
-		var p = self.buffer.indexOf("\0");
-		if (p == -1) {
-			console.dir(self.current_command);
-			console.dir(self.buffer);
-			assert.notEqual(p, -1, "no null");
-		}
 
-		// console.log("data", l, p, buffer + ":");
-		var ip = self.buffer.substring(0, p);
-		self.buffer = self.buffer.substring(p + 1);
-		return ip;
-	};
 	// standard parser read 2 lines and byte
 	this.parser1 = function() {
 		return parser.popmsg(self, [ "result", "info" ])
@@ -182,24 +172,25 @@ var BaseXStream = function(host, port, username, password) {
 		return parser.popmsg(self, [])
 	};
 
-	// read line and byte
+	// read line and byte possible error info
 	this.parser2 = function() {
-		if (-1 != self.buffer.indexOf("\0")) {
-			// console.log(self.tag," parser2",self.current_command.send)
-			// console.dir(self.buffer)
-			var reply = self.readline();
-			var ok = self.ok();
-			var r = {
-				ok : ok
-			};
-			if (ok) {
-				r.result = reply
-			} else {
-				r.info = self.readline()
-			}
-			return r
+		if(!self.parser2part){
+			var r=parser.popmsg(self,["result"])
+			if(!r)return 
+			if(r.ok){
+				return {ok:true,result:r.result}
+			}else{
+				self.parser2part=r;
+			}				
+		}else{
+			var r=parser.popmsg(self,["info"],false)
+			if(!r)return
+			var res={ok:false,
+					info:r.info,
+					result:self.parser2part.result}
+			self.parser2part=null;
+			return res
 		}
-
 	};
 	
 
