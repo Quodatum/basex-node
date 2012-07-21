@@ -10,7 +10,6 @@ var net = require("net"),
 util = require("util"), 
 events = require("events"), 
 crypto = require("crypto"), 
-assert = require('assert'), 
 Query = require("./lib/query").Query, 
 Watch = require("./lib/watch").Watch, 
 parser = require("./lib/parser"),
@@ -89,31 +88,31 @@ var BaseXStream = function(host, port, username, password) {
 			self.emit("connect", 1);
 			self.sendQueueItem();
 		} else {
-			var r;
-			// console.log("parse");
-			while (r = self.current_command.parser()) {
-				if (exports.debug_mode) {
-					console.log("response: ", r);
-				}
-				if (self.current_command.callback) {
-					self.current_command.callback(r.ok ? null : r.info, r);
-				}
-
-				self.current_command = self.q_sent.shift();
-				// assert.equal(self.buffer.length, 0, "buffer not empty:" +
-				// self.buffer);
-				if (!self.current_command) {
-					break;
-				}
-			}
+			self.onData()
 		}
 	});
+	
+	// respond to data arrival
+    this.onData=function(){
+		// console.log("onData");
+    	var r;
+		while (r = self.current_command.parser()) {
+			if (exports.debug_mode) {
+				console.log("response: ", r);
+			}
+			if (self.current_command.callback) {
+				self.current_command.callback(r.ok ? null : r.info, r);
+			}
 
+			self.current_command = self.q_sent.shift();
+			if (!self.current_command) break;
+		}    	
+    };
+    
 	stream.on("error",
 					function(e) {
 						if (e.code == 'ECONNREFUSED') {
-							console
-									.log('ECONNREFUSED: connection refused. Check BaseX server is running.');
+							console.log('ECONNREFUSED: connection refused. Check BaseX server is running.');
 						} else {
 							console.log(e);
 						}
@@ -245,13 +244,17 @@ var BaseXStream = function(host, port, username, password) {
 				send : "\x0A", 
 				parser : self.parsewatch,
 				callback :function(){
+					
 					self.event.add(name, notification)
+					// add at front
 					self.send_command({
 						send : name+"\0",
 						parser : self.parsewatch2,
 						callback : callback
 					});
-					}
+					self.setBlock(false);
+					},
+				blocking:true
 				})
 		} else {
 			self.event.add(name, notification)
@@ -263,16 +266,14 @@ var BaseXStream = function(host, port, username, password) {
 		}
 			
 	};
-	// parse 1st watch response
-	this.parsewatch = function() {
-		// expect port,id
+	
+	// parse 1st watch response, expect port,id
+	this.parsewatch = function() {		
 		var flds = parser.popmsg(self, [ "eport", "id" ],false)
 		if (flds) {
-			// console.log(flds)
-			// console.dir(parts)
 			if (self.event == null) {
 				self.event = new Watch(self.host, flds.eport,flds.id)
-				self.event.on("connect",self.parser) //need to wait
+				self.event.on("connect",self.onData) //need to wait
 			}
 			flds.ok=true // expected by reader
 			return flds;
@@ -282,6 +283,8 @@ var BaseXStream = function(host, port, username, password) {
 	// parse other watch response
 	this.parsewatch2 = function() {
 		// wait info and connected
+		//console.log("qqqq",self.event.isConnected)
+		//console.log(".....parsewatch2",self.buffer)
 		if (self.event.isConnected) return parser.popmsg(self, [ "info" ])
 	};
 	
@@ -290,9 +293,9 @@ var BaseXStream = function(host, port, username, password) {
 		self.send_command({
 			send : "\x0B" + name+"\0",
 			parser : self.parser2,
-			callback : function(){
+			callback : function(err,reply){
 				self.event.remove(name);
-				callback
+				callback(err,reply);
 			}
 		});
 	};
@@ -328,11 +331,7 @@ var BaseXStream = function(host, port, username, password) {
 
 		} else {
 			self.q_sent.push(cmd);
-		}
-		;
-
-		// assert.equal(self.buffer.length, 0, "buffer not empty:" +
-		// self.buffer);
+		};
 
 		self.send(cmd.send);
 		self.setBlock(cmd.blocking ? true : false);
@@ -340,6 +339,7 @@ var BaseXStream = function(host, port, username, password) {
 	};
 
 	this.setBlock = function(state) {
+		//console.log("blocked:",state)
 		self.blocked = state;
 		while (self.sendQueueItem()) {
 		}

@@ -1,5 +1,5 @@
 {   "name" : "basex",
-    "version" : "0.5.1",
+    "version" : "0.5.2",
     "description" : "A BaseX (XML database) client library",
     "keywords": ["xml", "xquery", "xslt", "search", "database" ],
     "author": "Andy Bunce ",
