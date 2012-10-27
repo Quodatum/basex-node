@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/apb2006/basex-node.png)](http://travis-ci.org/apb2006/basex-node)
 # basex - A BaseX client for node.js  
 ===========================
 
