@@ -8,7 +8,7 @@ var sessions=[];
 function track(msg) {
 	return function(err, reply){
 		sCount--;
-		console.log("closed: ",msg, "remaining",sCount);
+		console.log("closed: ",msg, ", remaining: ",sCount);
 		if(arguments.length==2) print(err, reply)
 		}
 };

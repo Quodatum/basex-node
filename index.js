@@ -4,7 +4,7 @@
  */
 
 // set this to true to enable console.log msgs for all connections
-exports.debug_mode = false;
+debug_mode = false;
 
 var net = require("net"), 
 util = require("util"), 
@@ -12,7 +12,7 @@ events = require("events"),
 crypto = require("crypto"), 
 Query = require("./lib/query").Query, 
 Watch = require("./lib/watch").Watch, 
-parser = require("./lib/parser"),
+parser2 = require("./lib/parser2"),
 Queue = require("./lib/queue").Queue;
 
 var states = {
@@ -23,9 +23,9 @@ var states = {
 	CLOSING : 4
 };
 
-var tagid = 0; // used to give each BaseXStream a unique .tag property
+var tagid = 0; // used to give each Session a unique .tag property
 
-var BaseXStream = function(host, port, username, password) {
+var Session = function(host, port, username, password) {
 	var self = this;
 	this.port = port || 1984;
 	this.host = host || "127.0.0.1";
@@ -47,25 +47,27 @@ var BaseXStream = function(host, port, username, password) {
 		this.event = null;
 		// initial parser for auth
 		this.parser = function() {
-			return parser.popLine(self) //timestamp
+			return self.xx.need(["data"],false) //timestamp
 		};
 	};
 	this.reset();
 
 	var stream = net.createConnection(this.port, this.host);
 	stream.setEncoding('utf-8');
+	this.xx=new parser2.parse(stream);
+	
 	this.stream = stream;
 
-	stream.on("connect", function() {
+	this.stream.on("connect", function() {
 		self.state = states.CONNECTING;
-		if (exports.debug_mode) {
+		if (debug_mode) {
 			console.log(self.tag + ": stream connected");
 		}
 	});
 
-	stream.on("data", function(reply) {
+	this.stream.on("data", function(reply) {
 		self.buffer += reply;
-		if (exports.debug_mode) {
+		if (debug_mode) {
 			console.log(self.tag + "<<");
 			console.dir(self.buffer);
 		}
@@ -73,16 +75,19 @@ var BaseXStream = function(host, port, username, password) {
 		if (self.state == states.CONNECTING) {
 			var r=self.parser();
 			if(r){
+				//console.log("$$$$$$$$$$$",r)
 				self.send(self.username+"\0");
 				var s = md5(md5(self.password) + r.data);
 				self.send(s+"\0");
 				self.state = states.AUTHORIZE;
 			}
 		} else if (self.state == states.AUTHORIZE) {
-			if (!self.ok())
+			if (!self.xx.popByte()){
+				//console.log("data",self.xx.data,"buff: ",self.xx.buffer)
 				throw "Access denied.";
+			}
 			self.state = states.CONNECTED;
-			if (exports.debug_mode) {
+			if (debug_mode) {
 				console.log(self.tag + ": authorized");
 			}
 			self.emit("connect", 1);
@@ -96,8 +101,9 @@ var BaseXStream = function(host, port, username, password) {
     this.onData=function(){
 		// console.log("onData");
     	var r;
-		while (r = self.current_command.parser()) {
-			if (exports.debug_mode) {
+    	if (!self.current_command) return; //bug or not ??
+		while ( r = self.current_command.parser()) {
+			if (debug_mode) {
 				console.log("response: ", r);
 			}
 			if (self.current_command.callback) {
@@ -105,21 +111,16 @@ var BaseXStream = function(host, port, username, password) {
 			}
 
 			self.current_command = self.q_sent.shift();
+			//console.log("next is:");
+			//console.dir(self.current_command);
 			if (!self.current_command) break;
 		}    	
     };
     
-	stream.on("error",
-					function(e) {
-						if (e.code == 'ECONNREFUSED') {
-							console.log('ECONNREFUSED: connection refused. Check BaseX server is running.');
-						} else {
-							console.log(e);
-						}
-					});
+	this.stream.on("error",socketError);
 
-	stream.on("close", function() {
-		if (exports.debug_mode) {
+	this.stream.on("close", function() {
+		if (debug_mode) {
 			console.log(self.tag + ": stream closed");
 		}
 		if (self.event) self.event.close()
@@ -131,11 +132,11 @@ var BaseXStream = function(host, port, username, password) {
 		;
 	});
 
-	stream.on("end", function() {
+	this.stream.on("end", function() {
 		// console.log(self.tag+": stream end");
 	});
 
-	stream.on("drain", function() {
+	this.stream.on("drain", function() {
 		// console.log("drain");
 	});
 
@@ -143,7 +144,7 @@ var BaseXStream = function(host, port, username, password) {
 		if (typeof s === "function")
 			s = s();
 
-		if (exports.debug_mode) {
+		if (debug_mode) {
 			console.log(self.tag + ">>");
 			console.dir(s );
 		}
@@ -151,30 +152,21 @@ var BaseXStream = function(host, port, username, password) {
 		self.stream.write(s );
 		self.commands_sent += 1;
 	};
-	// read 1 character
-	this.read = function() {
-		// console.log("data", l, p, buffer + ":");
-		var ip = self.buffer.substr(0, 1);
-		self.buffer = self.buffer.substr(1);
-		return ip;
-	};
-	this.ok = function() {
-		return self.read() == "\0";
-	};
+	
 
 	// standard parser read 2 lines and byte
 	this.parser1 = function() {
-		return parser.popmsg(self, [ "result", "info" ])
+		return self.xx.need([ "result", "info" ],true)
 	};
 	// read status byte
 	this.parserOk = function() {
-		return parser.popmsg(self, [])
+		return self.xx.popByte()
 	};
 
 	// read line and byte possible error info
 	this.parser2 = function() {
 		if(!self.parser2part){
-			var r=parser.popmsg(self,["result"])
+			var r=self.xx.need(["result"],true)
 			if(!r)return 
 			if(r.ok){
 				return {ok:true,result:r.result}
@@ -182,7 +174,7 @@ var BaseXStream = function(host, port, username, password) {
 				self.parser2part=r;
 			}				
 		}else{
-			var r=parser.popmsg(self,["info"],false)
+			var r=self.xx.need(["info"],false)
 			if(!r)return
 			var res={ok:false,
 					info:r.info,
@@ -348,9 +340,16 @@ var BaseXStream = function(host, port, username, password) {
 	events.EventEmitter.call(this);
 };
 
+function socketError(e) {
+	if (e.code == 'ECONNREFUSED') {
+		console.log('ECONNREFUSED: connection refused. Check BaseX server is running.');
+	} else {
+		console.log(e);
+	}
+}
 function md5(str) {
 	return crypto.createHash('md5').update(str).digest("hex");
 };
 
-util.inherits(BaseXStream, events.EventEmitter);
-exports.Session = BaseXStream;
+util.inherits(Session, events.EventEmitter);
+exports.Session = Session;

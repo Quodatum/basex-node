@@ -24,7 +24,7 @@ To install with npm:
 	basex@0.5.0 ./node_modules/basex 
 ```
 
-Once BaseX is running, test it. 
+Once BaseX is installed and the BaseX server is running, test it. 
 
 ```bash
 	$ cd examples/
