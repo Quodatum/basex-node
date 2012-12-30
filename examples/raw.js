@@ -1,5 +1,5 @@
 /*
- * This example shows the use of raw data. (NOT working)
+ * This example shows the use of raw data.  
  */
 var basex  = require("../index");
 var client = new basex.Session();

@@ -74,18 +74,24 @@ Closes the session.
 # The query object
 
 ##bind
-   query.bind(name,value,callback);
+   query.bind(name,value,type,callback);
+Binds a `name` to a `value`. Currently `type` is ignored.
+   
 ##close   
    query.close();
 ##results   
    query.results(callback);
+Returns results as an array.
+   
 ##execute   
    query.execute(callback);
+   
 ##info   
    query.info(callback);
+   
 ##options   
    query.options(callback);
    
 # Debugging
-The basex module variable `debug_mode` can be set to true to 
+The `index.js` module variable `debug_mode` can be set to true to 
 print diagnostic info to the console.

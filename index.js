@@ -4,7 +4,7 @@
  */
 
 // set this to true to enable console.log msgs for all connections
-debug_mode = false;
+exports.debug_mode =false;
 
 var net = require("net"), 
 util = require("util"), 
@@ -47,80 +47,77 @@ var Session = function(host, port, username, password) {
 		this.event = null;
 		// initial parser for auth
 		this.parser = function() {
-			return self.xx.need(["data"],false) //timestamp
+			return self.bxp.need(["data"],false) //timestamp
 		};
 	};
 	this.reset();
 
 	var stream = net.createConnection(this.port, this.host);
-	stream.setEncoding('utf-8');
-	this.xx=new parser2.parse(stream);
-	
+	//stream.setEncoding('utf-8');
+	this.bxp=new parser2.parse(stream);
+	//this.bxp.on("data",function(d){console.log("ping",d.toString())});
 	this.stream = stream;
 
 	this.stream.on("connect", function() {
 		self.state = states.CONNECTING;
-		if (debug_mode) {
+		if (exports.debug_mode) {
 			console.log(self.tag + ": stream connected");
 		}
 	});
 
 	this.stream.on("data", function(reply) {
-		self.buffer += reply;
-		if (debug_mode) {
+		if (exports.debug_mode) {
 			console.log(self.tag + "<<");
-			console.dir(self.buffer);
+			console.dir(reply.toString());
 		}
-
-		if (self.state == states.CONNECTING) {
+        if (self.state == states.CONNECTED) {
+        	self.onData()      	
+        }else if (self.state == states.CONNECTING) {
 			var r=self.parser();
 			if(r){
-				//console.log("$$$$$$$$$$$",r)
 				self.send(self.username+"\0");
 				var s = md5(md5(self.password) + r.data);
 				self.send(s+"\0");
 				self.state = states.AUTHORIZE;
 			}
 		} else if (self.state == states.AUTHORIZE) {
-			if (!self.xx.popByte()){
-				//console.log("data",self.xx.data,"buff: ",self.xx.buffer)
+			if (!self.bxp.popByte()){
+				//console.log("data",self.bxp.data,"buff: ",self.bxp.buffer)
 				throw "Access denied.";
 			}
 			self.state = states.CONNECTED;
-			if (debug_mode) {
+			if (exports.debug_mode) {
 				console.log(self.tag + ": authorized");
 			}
 			self.emit("connect", 1);
 			self.sendQueueItem();
 		} else {
-			self.onData()
+			throw "Bad state.";
 		}
 	});
 	
 	// respond to data arrival
     this.onData=function(){
 		// console.log("onData");
-    	var r;
-    	if (!self.current_command) return; //bug or not ??
-		while ( r = self.current_command.parser()) {
-			if (debug_mode) {
+    	var r,cc=self.current_command;
+    	while (cc && (r = cc.parser())) {
+			if (exports.debug_mode) {
 				console.log("response: ", r);
 			}
-			if (self.current_command.callback) {
-				self.current_command.callback(r.ok ? null : r.info, r);
+			if (cc.callback) {
+				cc.callback(r.ok ? null : r.info, r);
 			}
 
-			self.current_command = self.q_sent.shift();
+			cc=self.current_command = self.q_sent.shift();
 			//console.log("next is:");
 			//console.dir(self.current_command);
-			if (!self.current_command) break;
 		}    	
     };
     
 	this.stream.on("error",socketError);
 
 	this.stream.on("close", function() {
-		if (debug_mode) {
+		if (exports.debug_mode) {
 			console.log(self.tag + ": stream closed");
 		}
 		if (self.event) self.event.close()
@@ -144,7 +141,7 @@ var Session = function(host, port, username, password) {
 		if (typeof s === "function")
 			s = s();
 
-		if (debug_mode) {
+		if (exports.debug_mode) {
 			console.log(self.tag + ">>");
 			console.dir(s );
 		}
@@ -156,17 +153,17 @@ var Session = function(host, port, username, password) {
 
 	// standard parser read 2 lines and byte
 	this.parser1 = function() {
-		return self.xx.need([ "result", "info" ],true)
+		return self.bxp.need([ "result", "info" ],true)
 	};
 	// read status byte
 	this.parserOk = function() {
-		return self.xx.popByte()
+		return self.bxp.popByte()
 	};
 
 	// read line and byte possible error info
 	this.parser2 = function() {
 		if(!self.parser2part){
-			var r=self.xx.need(["result"],true)
+			var r=self.bxp.need(["result"],true)
 			if(!r)return 
 			if(r.ok){
 				return {ok:true,result:r.result}
@@ -174,7 +171,7 @@ var Session = function(host, port, username, password) {
 				self.parser2part=r;
 			}				
 		}else{
-			var r=self.xx.need(["info"],false)
+			var r=self.bxp.need(["info"],false)
 			if(!r)return
 			var res={ok:false,
 					info:r.info,
@@ -199,32 +196,23 @@ var Session = function(host, port, username, password) {
 	};
 	// Creates a database from an input stream:
 	this.create = function(name, input, callback) {
-		self.send_command({
-			send : "\x08" + name + "\0" + input+"\0",
-			parser : self.parser2,
-			callback : callback
-		});
+		self._dbop("\x08" ,path , input,callback)
 	};
 	// Adds a document to the current database from an input stream:
 	this.add = function(path, input, callback) {
-		self.send_command({
-			send : "\x09" + path + "\0" + input+"\0",
-			parser : self.parser2,
-			callback : callback
-		});
+		self._dbop("\x09" ,path , input,callback)
 	};
 	// Replaces a document with the specified input stream:
 	this.replace = function(path, input, callback) {
-		self.send_command({
-			send : "\x0C" + path + "\0" + input+"\0",
-			parser : self.parser2,
-			callback : callback
-		});
+		self._dbop("\x0C" ,path , input,callback)
 	};
 	// Stores raw data at the specified path:
 	this.store = function(path, input, callback) {
+		self._dbop("\x0D" ,path , input,callback)
+	};
+	this._dbop=function(op,path, input, callback) {
 		self.send_command({
-			send : "\x0D" + path + "\0" + input+"\0",
+			send : op + path + "\0" + input+"\0",
 			parser : self.parser2,
 			callback : callback
 		});
@@ -260,8 +248,8 @@ var Session = function(host, port, username, password) {
 	};
 	
 	// parse 1st watch response, expect port,id
-	this.parsewatch = function() {		
-		var flds = parser.popmsg(self, [ "eport", "id" ],false)
+	this.parsewatch = function() {
+		var flds=self.bxp.need([ "eport", "id" ],false)
 		if (flds) {
 			if (self.event == null) {
 				self.event = new Watch(self.host, flds.eport,flds.id)
@@ -277,7 +265,7 @@ var Session = function(host, port, username, password) {
 		// wait info and connected
 		//console.log("qqqq",self.event.isConnected)
 		//console.log(".....parsewatch2",self.buffer)
-		if (self.event.isConnected) return parser.popmsg(self, [ "info" ])
+		if (self.event.isConnected) return self.bxp.need([ "info" ],true)
 	};
 	
 	// unwatch

@@ -1,4 +1,5 @@
 // start multiple sessions
+// fails with around 200 sessions
 var basex =require("../index");
 var log = require("../debug");
 basex.debug_mode = false;

@@ -1,3 +1,7 @@
+## v0.6.0 - 2012-12-29
+- implement BaseX escape protocol
+- switch from Vows to Mocha for tests
+
 ## v0.5.1 - 2012-07-19
 - readline fixed
 

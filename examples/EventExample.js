@@ -10,31 +10,39 @@ var session1 = new basex.Session("localhost", 1984, "admin", "admin");
 var session2 = new basex.Session("localhost", 1984, "admin", "admin");
 basex.debug_mode = false;
 
+// create the event
+session1.execute("create event test_evt", afterCreate);
 
-
-session1.execute("create event messenger",afterEvent);
-
-function afterEvent(err, reply){
-	if (err) console.log("Error: " + err);
-	console.log("afterevent");
-	session2.watch("messenger",watchCallback,afterWatch);	
+// watch for it in second session
+function afterCreate(err, reply) {
+	console.log("running afterCreate...");
+	if (err)
+		console.log("Error: " + err);
+	session2.watch("test_evt", watchCallback, afterWatch);
 };
 
-function afterWatch(err, reply){
-	if (err)console.log("Error: " + err);
-	console.log("afterwatch");
-	var xq="for $i in 1 to 10000000 where $i=0  return $i"
-		session2.query(xq).execute(d.printMsg("S2:execute"));
-		session1.query("db:event('messenger', 'Hello World!')").execute(d.printMsg("S1:event"));
+// run long query in sessions, and fire event from session1
+function afterWatch(err, reply) {
+	console.log("running afterWatch...");
+	if (err)
+		console.log("Error: " + err, reply);
+
+	var xq = "for $i in 1 to 10000000 where $i=7  return $i"
+	session2.query(xq).execute(d.printMsg("S2:execute complete"));
+	session1.query("db:event('test_evt', 'Hello World!')").execute(
+			d.printMsg("S1:event sent"));
 };
 
-function watchCallback(name,msg){
-	console.log("watch update-----> ",msg)
-	session2.unwatch("messenger",function(){
-	session1.execute("drop event messenger",d.printMsg("S1:drop event"));
+// on event received show and unwatch
+function watchCallback(name, msg) {
+	console.log("watch event received-----> ", msg)
+	session2.unwatch("test_evt", teardown);
+};
+// close all
+function teardown(err, reply) {
+	console.log("unwatch:", err, reply)
+	session1.execute("drop event test_evt", d.printMsg("S1:drop event"));
 	// close session
 	session1.close(d.printMsg("S1:close"));
-	session2.close(d.printMsg("S2:close"));			
-	});
-    
+	session2.close(d.printMsg("S2:close"));
 };

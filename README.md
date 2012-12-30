@@ -1,14 +1,12 @@
-[![build status](https://secure.travis-ci.org/apb2006/basex-node.png)](http://travis-ci.org/apb2006/basex-node)
 # basex - A BaseX client for node.js  
 ===========================
 
-This is BaseX client for node.js. It is work in progress. 
+This is BaseX client for Node.js. It is work in progress. 
 
 [BaseX](http://basex.org/) is a very light-weight, high-performance and scalable
  XML Database engine and XPath/XQuery 3.0 Processor, 
  including full support for the W3C Update and Full Text extensions.
 Built as a lightweight Java server, BaseX also supports XSLT, Webdav and RestXQ.  
-
 
 
 ## Installing the BaseX Node client
@@ -21,7 +19,7 @@ To install with npm:
 	$ mkdir myproject
 	cd myproject
 	$ npm install basex
-	basex@0.5.0 ./node_modules/basex 
+	basex@0.6.0 ./node_modules/basex 
 ```
 
 Once BaseX is installed and the BaseX server is running, test it. 
@@ -39,7 +37,7 @@ Once BaseX is installed and the BaseX server is running, test it.
 ## Installing BaseX
 1. Java is required
 1. [Download](http://basex.org/products/download/all-downloads/) and install BaseX
-(tested against version 7.3)
+(tested against version 7.5)
 1. Run `basexserver -S`
 
 ## API specification
@@ -48,32 +46,47 @@ See [commands.md](https://github.com/apb2006/basex-node/blob/master/docs/command
  in the docs folder for details of the API.
  
 ## Tests
-There is a test suite, using [vows](http://vowsjs.org/) .
+There is a test suite using [mocha](http://visionmedia.github.com/mocha/)
+, [should](https://github.com/visionmedia/should.js) and
+[sinon](http://sinonjs.org/).
 
 ```bash
-		vows tests/*  --spec
-		
-		♢ BaseX interface test
-		
-		  Request info
-		    ✓ we get no error
-		    ✓ we get a reply
-		  Send an valid xquery statement:  2+2
-		    ✓ we get no error
-		    ✓ and the answer is 4
-		  Send an invalid command:  2+
-		    ✓ we get an error
-		  Create a database
-		    ✓ we get no error
-		  Add a document
-		    ✓ we get no error
-		  Drop the database
-		    ✓ we get no error
-		  Send a xquery and iterate over the result items
-		    ✓ we get no error
-		    ✓ and the result is an array
-		 
-		✓ OK » 10 honored (0.253s)
+mocha -R spec test/test-commands.js 
+
+
+  Execute info command
+    ✓ should not error 
+    ✓ should have reply 
+
+  Send an valid xquery statement:  2+2
+    ✓ It should not error 
+    ✓ It should equal 4 
+
+  Send an invalid command:  2+
+    ✓ It should  error 
+
+  Create a database
+    ✓ It should not error 
+
+  Add a document
+    ✓ It should not error 
+
+  drop db database
+    ✓ It should not error 
+
+  drop db database
+    ✓ It should not error 
+
+  Send a xquery and iterate over the result items
+    ✓ It should not error 
+    ✓ It should return an array 
+
+  create query and bind 
+    ✓ It should not error 
+    ✓ It should return a string 
+
+  13 tests complete (408 ms)
+
 ```
 
 
