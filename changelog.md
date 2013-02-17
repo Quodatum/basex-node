@@ -1,3 +1,6 @@
+## v0.6.1 - 2013-02-17
+- fix authorization bug (#8)
+
 ## v0.6.0 - 2012-12-29
 - implement BaseX escape protocol
 - switch from Vows to Mocha for tests

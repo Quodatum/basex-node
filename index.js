@@ -27,8 +27,8 @@ var tagid = 0; // used to give each Session a unique .tag property
 
 var Session = function(host, port, username, password) {
 	var self = this;
-	this.port = port || 1984;
 	this.host = host || "127.0.0.1";
+	this.port = port || 1984;
 	this.username = username || "admin";
 	this.password = password || "admin";
 	this.tag = "S" + (++tagid);
@@ -73,24 +73,27 @@ var Session = function(host, port, username, password) {
         if (self.state == states.CONNECTED) {
         	self.onData()      	
         }else if (self.state == states.CONNECTING) {
-			var r=self.parser();
-			if(r){
+			var read=self.parser();
+			if(read){
 				self.send(self.username+"\0");
-				var s = md5(md5(self.password) + r.data);
+				var s = md5(md5(self.password) + read.data);
 				self.send(s+"\0");
 				self.state = states.AUTHORIZE;
 			}
 		} else if (self.state == states.AUTHORIZE) {
-			if (!self.bxp.popByte()){
+			var read=self.bxp.popByte()
+			if(read){
+				if(read.data!="\0"){
 				//console.log("data",self.bxp.data,"buff: ",self.bxp.buffer)
 				throw "Access denied.";
-			}
+				}
 			self.state = states.CONNECTED;
 			if (exports.debug_mode) {
 				console.log(self.tag + ": authorized");
 			}
 			self.emit("connect", 1);
 			self.sendQueueItem();
+			}
 		} else {
 			throw "Bad state.";
 		}
