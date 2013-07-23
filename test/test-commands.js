@@ -60,10 +60,10 @@ describe('Send an invalid command:  2+', function() {
 	});
 });
 
-describe('Create a database', function() {
+describe('Create a database with execute', function() {
 	var reply, err;
 	before(function(done) {
-		session.execute("create db database", function(e, r) {
+		session.execute("create db testdb", function(e, r) {
 			reply = r;
 			err = e;
 			done();
@@ -93,7 +93,22 @@ describe('Add a document', function() {
 describe('drop db database', function() {
 	var reply, err;
 	before(function(done) {
-		session.execute("drop db database", function(e, r) {
+		session.execute("drop db testdb", function(e, r) {
+			reply = r;
+			err = e;
+			done();
+		});
+	});
+
+	it('It should not error', function() {
+		should.not.exist(err);
+	});
+});
+
+describe('create database', function() {
+	var reply, err;
+	before(function(done) {
+		session.create("testdb", "<x>Hello World!</x>", function(e, r) {
 			reply = r;
 			err = e;
 			done();
@@ -108,7 +123,7 @@ describe('drop db database', function() {
 describe('drop db database', function() {
 	var reply, err;
 	before(function(done) {
-		session.execute("drop db database", function(e, r) {
+		session.execute("drop db testdb", function(e, r) {
 			reply = r;
 			err = e;
 			done();

@@ -199,7 +199,7 @@ var Session = function(host, port, username, password) {
 	};
 	// Creates a database from an input stream:
 	this.create = function(name, input, callback) {
-		self._dbop("\x08" ,path , input,callback)
+		self._dbop("\x08" ,name , input,callback)
 	};
 	// Adds a document to the current database from an input stream:
 	this.add = function(path, input, callback) {
@@ -213,6 +213,7 @@ var Session = function(host, port, username, password) {
 	this.store = function(path, input, callback) {
 		self._dbop("\x0D" ,path , input,callback)
 	};
+	//@TODO allow input to be stream, currently just string
 	this._dbop=function(op,path, input, callback) {
 		self.send_command({
 			send : op + path + "\0" + input+"\0",

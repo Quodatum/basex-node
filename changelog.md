@@ -1,3 +1,7 @@
+## v0.6.2 - 2013-07-13
+- fix query array result timing issue (#10)
+- fix session.create
+
 ## v0.6.1 - 2013-02-17
 - fix authorization bug (#8)
 

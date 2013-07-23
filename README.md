@@ -1,7 +1,7 @@
 # basex - A BaseX client for node.js  
 ===========================
 
-This is BaseX client for Node.js. It is work in progress. 
+This is BaseX client for Node.js. It is work in progress. It uses the client interface via a socket connection to the BaseX server.
 
 [BaseX](http://basex.org/) is a very light-weight, high-performance and scalable
  XML Database engine and XPath/XQuery 3.0 Processor, 
@@ -37,7 +37,7 @@ Once BaseX is installed and the BaseX server is running, test it.
 ## Installing BaseX
 1. Java is required
 1. [Download](http://basex.org/products/download/all-downloads/) and install BaseX
-(tested against version 7.5)
+(tested against version 7.6)
 1. Run `basexserver -S`
 
 ## API specification

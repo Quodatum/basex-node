@@ -37,7 +37,7 @@ describe('Authorization failure ', function() {
 		session.close(function(e, r) {
 			reply = r;
 			err = e;
-			done();
+			//done();
 		
 	});
 

@@ -3,7 +3,7 @@
  * This example shows how database commands can be executed.
  */
 var basex  = require("../index");
-var client = new basex.Session();
+var client = new basex.Session("127.0.0.1", 1984, "admin", "admin");
 basex.debug_mode = false;
 function print(err, reply) {
 	if (err) {
