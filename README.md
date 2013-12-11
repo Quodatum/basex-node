@@ -102,3 +102,7 @@ Parts inspired by [node_redis](https://github.com/mranney/node_redis),
 #license
 
 BSD license
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/apb2006/basex-node/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
