@@ -30,9 +30,12 @@ describe('Authorization failure ', function() {
 	
 	it('should throw error', function(done) {
 		var originalException = process.listeners('uncaughtException').pop()
-		process.on('uncaughtException', function (err) {
-			done()
-		});
+		 //Needed in node 0.10.5+
+        process.removeListener('uncaughtException', originalException);
+        process.once("uncaughtException", function (error) {
+            recordedError = error
+            done();
+        })
 		var session = new basex.Session("127.0.0.1", 1984, "admin", "wrong-password")
 		session.close(function(e, r) {
 			reply = r;

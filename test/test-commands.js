@@ -1,5 +1,5 @@
-/* basex-node test interface using mocha
- *
+/* 
+ * basex-node test interface using mocha
  */
 
 var basex = require('../index.js');
