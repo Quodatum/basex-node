@@ -1,5 +1,5 @@
 /* basex-node test interface using mocha
- * 
+ *
  */
 
 var basex = require('../index.js');
@@ -152,7 +152,7 @@ describe('Send a xquery and iterate over the result items', function() {
 		should.not.exist(err);
 	});
 	it('It should return an array', function() {
-		reply.result.should.be.an.instanceof(Array);
+		reply.result.should.be.an.Array;
 	});
 });
 
@@ -177,7 +177,7 @@ describe('create query and bind ', function() {
 		should.not.exist(err);
 	});
 	it('It should return a string', function() {
-		reply.result.should.be.a('string');
+		reply.result.should.be.a.String
 	});
 });
 
