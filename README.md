@@ -8,6 +8,7 @@ This is BaseX client for Node.js. It is work in progress. It uses the client int
  including full support for the W3C Update and Full Text extensions.
 Built as a lightweight Java server, BaseX also supports XSLT, Webdav and RestXQ.  
 
+[![NPM](https://nodei.co/npm/baex.png?stars&downloads)](https://nodei.co/npm/basex/) [![NPM](https://nodei.co/npm-dl/basex.png)](https://nodei.co/npm/basex/)
 
 ## Installing the BaseX Node client
 
