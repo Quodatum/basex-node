@@ -182,7 +182,7 @@ var Session = function(host, port, username, password) {
 				// Additionally, setting parser2part and then not returning a result breaks
 				// out of the while loop in onData without ever calling the callback...
 				// self.parser2part = r;
-				return {ok: false, info: r.result, result: r.result};
+				return {ok: false, info: r.result, result: ''};
 
 			}
 		} else {
