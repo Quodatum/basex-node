@@ -4,14 +4,14 @@
  */
 
 // set this to true to enable console.log msgs for all connections
-exports.debug_mode =false;
+exports.debug_mode = true;
 
-var net = require("net"), 
-util = require("util"), 
-events = require("events"), 
-crypto = require("crypto"), 
-Query = require("./lib/query").Query, 
-Watch = require("./lib/watch").Watch, 
+var net = require("net"),
+util = require("util"),
+events = require("events"),
+crypto = require("crypto"),
+Query = require("./lib/query").Query,
+Watch = require("./lib/watch").Watch,
 parser2 = require("./lib/parser2"),
 Queue = require("./lib/queue").Queue;
 
@@ -70,9 +70,9 @@ var Session = function(host, port, username, password) {
 			console.log(self.tag + "<<");
 			console.dir(reply.toString());
 		}
-        if (self.state == states.CONNECTED) {
-        	self.onData()      	
-        }else if (self.state == states.CONNECTING) {
+		if (self.state == states.CONNECTED) {
+			self.onData()
+		} else if (self.state == states.CONNECTING) {
 			var read=self.parser();
 			if(read){
 				self.send(self.username+"\0");
@@ -98,12 +98,12 @@ var Session = function(host, port, username, password) {
 			throw "Bad state.";
 		}
 	});
-	
+
 	// respond to data arrival
-    this.onData=function(){
+	this.onData=function(){
 		// console.log("onData");
-    	var r,cc=self.current_command;
-    	while (cc && (r = cc.parser())) {
+		var r,cc=self.current_command;
+		while (cc && (r = cc.parser())) {
 			if (exports.debug_mode) {
 				console.log("response: ", r);
 			}
@@ -114,9 +114,9 @@ var Session = function(host, port, username, password) {
 			cc=self.current_command = self.q_sent.shift();
 			//console.log("next is:");
 			//console.dir(self.current_command);
-		}    	
-    };
-    
+		}
+	};
+
 	this.stream.on("error",socketError);
 
 	this.stream.on("close", function() {
@@ -124,7 +124,7 @@ var Session = function(host, port, username, password) {
 			console.log(self.tag + ": stream closed");
 		}
 		if (self.event) self.event.close()
-		
+
 		if (self.closefn) {
 			self.closefn();
 			self.closefn = null;
@@ -152,7 +152,7 @@ var Session = function(host, port, username, password) {
 		self.stream.write(s );
 		self.commands_sent += 1;
 	};
-	
+
 
 	// standard parser read 2 lines and byte
 	this.parser1 = function() {
@@ -165,25 +165,46 @@ var Session = function(host, port, username, password) {
 
 	// read line and byte possible error info
 	this.parser2 = function() {
-		if(!self.parser2part){
-			var r=self.bxp.need(["result"],true)
-			if(!r)return 
-			if(r.ok){
-				return {ok:true,result:r.result}
-			}else{
-				self.parser2part=r;
-			}				
-		}else{
-			var r=self.bxp.need(["info"],false)
-			if(!r)return
-			var res={ok:false,
-					info:r.info,
-					result:self.parser2part.result}
-			self.parser2part=null;
-			return res
+
+		if ( !self.parser2part ) {
+
+			var r = self.bxp.need( ["result"], true);
+			console.log('r= ' + JSON.stringify(r));
+
+			if (!r) return; // Won't this just cause the command to die silently?
+
+			if (r.ok) {
+				return {ok:true, result:r.result};
+
+			} else {
+
+				// Not sure what the intention of setting parser2part is.
+				// AFAICT, parser2part is only set in the initializer and within this method.
+				// Additionally, setting parser2part and then not returning a result breaks
+				// out of the while loop in onData without ever calling the callback...
+				// self.parser2part = r;
+				return {ok: false, info: r.result, result: r.result};
+
+			}
+		} else {
+
+			var r = self.bxp.need(["info"], false);
+			// console.log('r= ' + JSON.stringify(r));
+
+			if (!r) return; // Won't this just cause the command to die silently?
+
+			var res = {
+				ok: false,
+				info: r.info,
+				result: self.parser2part.result
+			};
+
+			self.parser2part = null;
+
+			return res;
 		}
 	};
-	
+
 
 	// add command and returns the result:
 	this.execute = function(cmd, callback) {
@@ -223,12 +244,12 @@ var Session = function(host, port, username, password) {
 	};
 	// watch
 	this.watch = function(name, notification, callback) {
-		if (self.event == null) { //1st time 
+		if (self.event == null) { //1st time
 			self.send_command({
-				send : "\x0A", 
+				send : "\x0A",
 				parser : self.parsewatch,
 				callback :function(){
-					
+
 					self.event.add(name, notification)
 					// add at front
 					self.send_command({
@@ -248,9 +269,9 @@ var Session = function(host, port, username, password) {
 				callback : callback
 			});
 		}
-			
+
 	};
-	
+
 	// parse 1st watch response, expect port,id
 	this.parsewatch = function() {
 		var flds=self.bxp.need([ "eport", "id" ],false)
@@ -271,9 +292,9 @@ var Session = function(host, port, username, password) {
 		//console.log(".....parsewatch2",self.buffer)
 		if (self.event.isConnected) return self.bxp.need([ "info" ],true)
 	};
-	
+
 	// unwatch
-	this.unwatch = function(name, callback) {	
+	this.unwatch = function(name, callback) {
 		self.send_command({
 			send : "\x0B" + name+"\0",
 			parser : self.parser2,
@@ -294,7 +315,7 @@ var Session = function(host, port, username, password) {
 	};
 	// -------end of commands ---------
 
-	// 
+	//
 	this.send_command = function(cmd) {
 		self.q_pending.push(cmd);
 		self.sendQueueItem();
