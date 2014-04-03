@@ -90,6 +90,21 @@ describe('Add a document', function() {
 	});
 });
 
+describe('Add an invalid document', function() {
+	var reply, err;
+	before(function(done) {
+		session.add("/world/World.xml", "<\"x\">Hello World!</x>", function(e, r) {
+			reply = r;
+			err = e;
+			done();
+		});
+	});
+
+	it('It should error', function() {
+		should.exist(err);
+	});
+});
+
 describe('drop db database', function() {
 	var reply, err;
 	before(function(done) {
