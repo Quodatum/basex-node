@@ -165,11 +165,10 @@ var Session = function(host, port, username, password) {
 
 	// read line and byte possible error info
 	this.parser2 = function() {
-
 		if ( !self.parser2part ) {
 
 			var r = self.bxp.need( ["result"], true);
-			console.log('r= ' + JSON.stringify(r));
+			// console.log('r= ' + JSON.stringify(r));
 
 			if (!r) return; // Won't this just cause the command to die silently?
 
