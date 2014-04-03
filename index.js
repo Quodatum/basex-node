@@ -4,7 +4,7 @@
  */
 
 // set this to true to enable console.log msgs for all connections
-exports.debug_mode = true;
+exports.debug_mode = false;
 
 var net = require("net"),
 util = require("util"),
