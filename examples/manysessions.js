@@ -6,6 +6,12 @@ basex.debug_mode = false;
 var sCount=200; // max 200
 var sessions=[];
 //show supplied msg then basex server response
+/**
+ * Description
+ * @method track
+ * @param {} msg
+ * @return FunctionExpression
+ */
 function track(msg) {
 	return function(err, reply){
 		sCount--;

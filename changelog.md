@@ -1,3 +1,8 @@
+## v0.6.3 - 2014-04-03
+- fix handling for add where doc is invalid (#14)
+- fix tests 
+- applied js-beautify to the code
+
 ## v0.6.2 - 2013-07-13
 - fix query array result timing issue (#10)
 - fix session.create

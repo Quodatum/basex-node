@@ -16,6 +16,13 @@ session1.unwatch("testevent",d.print);
 session1.execute("drop event testevent",d.printMsg("S1:drop event"));
 session1.close(d.print);
 
+/**
+ * Description
+ * @method watchCallback
+ * @param {} name
+ * @param {} msg
+ * @return 
+ */
 function watchCallback(name,msg){
 	console.log("watch update-----> ",msg)
 };

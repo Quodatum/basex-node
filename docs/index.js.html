@@ -1,7 +1,33 @@
-/* BaseX Node.js client
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: index.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: index.js</h1>
+
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* BaseX Node.js client
  * http://docs.basex.org/wiki/Server_Protocol
- * @author andy bunce
- * @date 2011-2014
+ * andy bunce 2011-2012
  */
 
 // set this to true to enable console.log msgs for all connections
@@ -28,7 +54,7 @@ var tagid = 0; // used to give each Session a unique .tag property
 
 /**
  * Create a session connection
- * @constructor Session
+ * @method Session
  * @param {} host
  * @param {} port
  * @param {} username
@@ -43,6 +69,8 @@ var Session = function(host, port, username, password) {
     this.password = password || "admin";
     this.tag = "S" + (++tagid);
     this.commands_sent = 0;
+    this.parser2part = null; // parser2 flag
+    // reset
     /**
      * reset state
      * @method reset
@@ -85,7 +113,7 @@ var Session = function(host, port, username, password) {
 
     this.stream.on("data", function(reply) {
         if (exports.debug_mode) {
-            console.log(self.tag + "<<");
+            console.log(self.tag + "&lt;&lt;");
             console.dir(reply.toString());
         }
         if (self.state == states.CONNECTED) {
@@ -125,7 +153,7 @@ var Session = function(host, port, username, password) {
     this.onData = function() {
         // console.log("onData");
         var r, cc = self.current_command;
-        while (cc && (r = cc.parser())) {
+        while (cc &amp;&amp; (r = cc.parser())) {
             if (exports.debug_mode) {
                 console.log("response: ", r);
             }
@@ -184,7 +212,7 @@ var Session = function(host, port, username, password) {
     /**
      * standard parser read 2 lines and byte
      * @method parser1
-     * @return {ok:bool,result:?,info:?} or null if not in buffer
+     * @return CallExpression
      */
     this.parser1 = function() {
         return self.bxp.need(["result", "info"], true)
@@ -201,22 +229,35 @@ var Session = function(host, port, username, password) {
 
 
     /**
-     * read line and byte, if error move result to info
+     * read line and byte possible error info
      * @method parser2
-     * @return {ok:bool,result:?,info:?} or null if not in buffer
+     * @return
      */
     this.parser2 = function() {
-        var r = self.bxp.need(["result"], true)
-        if (!r) return
-        if (r.ok) {
-            return r
-        } else {
-            return {
-                ok: false,
-                info: r.result
+        if (!self.parser2part) {
+            var r = self.bxp.need(["result"], true)
+            if (!r) return
+            if (r.ok) {
+                return {
+                    ok: true,
+                    result: r.result
+                }
+            } else {
+                self.parser2part = r;
             }
+        } else {
+            var r = self.bxp.need(["info"], false)
+            if (!r) return
+            var res = {
+                ok: false,
+                info: r.info,
+                result: self.parser2part.result
+            }
+            self.parser2part = null;
+            return res
         }
     };
+
 
     /**
      * add command and returns the result:
@@ -300,15 +341,15 @@ var Session = function(host, port, username, password) {
     };
 
     /**
-     * Subscribe to a named event
+     * Subscribe to event
      * @method watch
      * @param {} name
-     * @param {} notification function to call on event
-     * @param {} callback for this command
+     * @param {} notification
+     * @param {} callback
      * @return
      */
     this.watch = function(name, notification, callback) {
-        if (self.event === null) { //1st time 
+        if (self.event == null) { //1st time 
             self.send_command({
                 send: "\x0A",
                 parser: self.parsewatch,
@@ -349,7 +390,7 @@ var Session = function(host, port, username, password) {
     this.parsewatch = function() {
         var flds = self.bxp.need(["eport", "id"], false)
         if (flds) {
-            if (self.event === null) {
+            if (self.event == null) {
                 self.event = new Watch(self.host, flds.eport, flds.id)
                 self.event.on("connect", self.onData) //need to wait
             }
@@ -433,7 +474,7 @@ var Session = function(host, port, username, password) {
         // console.log("queues waiting send: ",self.q_pending.length,", waiting
         // reply:",self.q_sent.length)
 
-        if (self.q_pending.length === 0 || self.blocked || self.state != states.CONNECTED)
+        if (self.q_pending.length == 0 || self.blocked || self.state != states.CONNECTED)
             return false
 
         var cmd = self.q_pending.shift();
@@ -481,7 +522,7 @@ function socketError(e) {
  * hash str using md5
  * @method md5
  * @param {} str
- * @return md5 value
+ * @return CallExpression
  */
 function md5(str) {
     return crypto.createHash('md5').update(str).digest("hex");
@@ -489,3 +530,26 @@ function md5(str) {
 
 util.inherits(Session, events.EventEmitter);
 exports.Session = Session;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Global</h3><ul><li><a href="global.html#add">add</a></li><li><a href="global.html#callback">callback</a></li><li><a href="global.html#close">close</a></li><li><a href="global.html#create">create</a></li><li><a href="global.html#execute">execute</a></li><li><a href="global.html#md5">md5</a></li><li><a href="global.html#onData">onData</a></li><li><a href="global.html#parser">parser</a></li><li><a href="global.html#parser1">parser1</a></li><li><a href="global.html#parser2">parser2</a></li><li><a href="global.html#parserOk">parserOk</a></li><li><a href="global.html#parsewatch">parsewatch</a></li><li><a href="global.html#parsewatch2">parsewatch2</a></li><li><a href="global.html#query">query</a></li><li><a href="global.html#replace">replace</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#send">send</a></li><li><a href="global.html#send_command">send_command</a></li><li><a href="global.html#sendQueueItem">sendQueueItem</a></li><li><a href="global.html#Session">Session</a></li><li><a href="global.html#setBlock">setBlock</a></li><li><a href="global.html#socketError">socketError</a></li><li><a href="global.html#store">store</a></li><li><a href="global.html#unwatch">unwatch</a></li><li><a href="global.html#watch">watch</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Fri Apr 04 2014 10:02:19 GMT+0100 (GMT Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

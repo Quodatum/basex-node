@@ -1,4 +1,4 @@
-/* basex-node test interface using vows large data volumes
+/* basex-node test interface using mocha, with large data volumes
  * 
  */
 
@@ -7,11 +7,11 @@ var should = require("should");
 
 var session = new basex.Session();
 
-describe('Send a xquery and iterate over the 10000 result items ', function() {
+describe('Send a xquery and iterate over the 100000 result items ', function() {
 	var reply, err;
 	before(function(done) {
 		// create query instance
-		var input = 'for $i in 1 to 10000 return <xml>Text { $i }</xml>';
+		var input = 'for $i in 1 to 100000 return <xml>Text { $i }</xml>';
 		var query = session.query(input);
 
 		query.results( function(e, r) {
@@ -46,8 +46,6 @@ describe('return megabyte result from execute ', function() {
 describe('return megabyte result from query ', function() {
 	var reply, err;
 	before(function(done) {
-		// create query instance
-		var input = 'xquery (1 to 100000)!"abcdefghij"';
 		// create query instance
 		var input = '(1 to 100000)!"abcdefghij"';
 		var query = session.query(input);

@@ -14,6 +14,13 @@ basex.debug_mode = false;
 session1.execute("create event test_evt", afterCreate);
 
 // watch for it in second session
+/**
+ * Description
+ * @method afterCreate
+ * @param {} err
+ * @param {} reply
+ * @return 
+ */
 function afterCreate(err, reply) {
 	console.log("running afterCreate...");
 	if (err)
@@ -22,6 +29,13 @@ function afterCreate(err, reply) {
 };
 
 // run long query in sessions, and fire event from session1
+/**
+ * Description
+ * @method afterWatch
+ * @param {} err
+ * @param {} reply
+ * @return 
+ */
 function afterWatch(err, reply) {
 	console.log("running afterWatch...");
 	if (err)
@@ -34,11 +48,25 @@ function afterWatch(err, reply) {
 };
 
 // on event received show and unwatch
+/**
+ * Description
+ * @method watchCallback
+ * @param {} name
+ * @param {} msg
+ * @return 
+ */
 function watchCallback(name, msg) {
 	console.log("watch event received-----> ", msg)
 	session2.unwatch("test_evt", teardown);
 };
 // close all
+/**
+ * Description
+ * @method teardown
+ * @param {} err
+ * @param {} reply
+ * @return 
+ */
 function teardown(err, reply) {
 	console.log("unwatch:", err, reply)
 	session1.execute("drop event test_evt", d.printMsg("S1:drop event"));

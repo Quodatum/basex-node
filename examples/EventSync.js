@@ -20,6 +20,13 @@ function() {
 	session1.execute("XQUERY db:event('messenger', 99)", this);
 });
 
+/**
+ * Description
+ * @method watchCallback
+ * @param {} name
+ * @param {} msg
+ * @return 
+ */
 function watchCallback(name, msg) {
 	console.log("watch update-----> ", msg)
 	step(

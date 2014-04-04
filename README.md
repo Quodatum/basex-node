@@ -1,7 +1,9 @@
 # basex - A BaseX client for node.js  
 ===========================
 
-This is BaseX client for Node.js. It is work in progress. It uses the client interface via a socket connection to the BaseX server.
+This is BaseX client for Node.js. It is work in progress. 
+It uses the [client interface](http://docs.basex.org/wiki/Server_Protocol)
+ via a socket connection to the BaseX server.
 
 [BaseX](http://basex.org/) is a very light-weight, high-performance and scalable
  XML Database engine and XPath/XQuery 3.0 Processor, 
@@ -38,7 +40,7 @@ Once BaseX is installed and the BaseX server is running, test it.
 ## Installing BaseX
 1. Java is required
 1. [Download](http://basex.org/products/download/all-downloads/) and install BaseX
-(tested against version 7.6)
+(tested against version 7.7)
 1. Run `basexserver -S`
 
 ## API specification
@@ -89,6 +91,10 @@ mocha -R spec test/test-commands.js
   13 tests complete (408 ms)
 
 ```
+# Coding
+
+Javascript is formated using js-beautify `js-beautify -r index.js`
+Documentation is generated using `jsdoc -r -d docs --verbose index.js`
 
 
 # TODO
@@ -98,7 +104,7 @@ mocha -R spec test/test-commands.js
 
 # Inspiration
 Parts inspired by [node_redis](https://github.com/mranney/node_redis), 
-[BaseX Java client](https://github.com/BaseXdb/basex-examples/blob/master/src/main/java/org/basex/examples/api/BaseXClient.java)
+[BaseX Java client](https://github.com/BaseXdb/basex/blob/master/basex-examples/src/main/java/org/basex/examples/api/BaseXClient.java)
 
 #license
 

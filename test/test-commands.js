@@ -90,6 +90,22 @@ describe('Add a document', function() {
 	});
 });
 
+describe('Add an invalid document', function() {
+	var reply, err;
+	before(function(done) {
+		session.add("/world/World.xml", "<\"x\">Hello World!</x>", function(e,
+				r) {
+			reply = r;
+			err = e;
+			done();
+		});
+	});
+
+	it('It should error', function() {
+		should.exist(err);
+	});
+});
+
 describe('drop db database', function() {
 	var reply, err;
 	before(function(done) {
@@ -156,30 +172,32 @@ describe('Send a xquery and iterate over the result items', function() {
 	});
 });
 
-describe('create query and bind ', function() {
-	var reply, err;
-	before(function(done) {
-		var input = "declare variable $name external; for $i in 1 to 10 return element { $name } { $i }";
-		var query = session.query(input);
+describe(
+		'create query and bind ',
+		function() {
+			var reply, err;
+			before(function(done) {
+				var input = "declare variable $name external; for $i in 1 to 10 return element { $name } { $i }";
+				var query = session.query(input);
 
-		// bind variable
-		query.bind("name", "nodex");
+				// bind variable
+				query.bind("name", "nodex");
 
-		// print results
-		query.execute(function(e, r) {
-			reply = r;
-			err = e;
-			done();
+				// print results
+				query.execute(function(e, r) {
+					reply = r;
+					err = e;
+					done();
+				});
+			});
+
+			it('It should not error', function() {
+				should.not.exist(err);
+			});
+			it('It should return a string', function() {
+				reply.result.should.be.a.String
+			});
 		});
-	});
-
-	it('It should not error', function() {
-		should.not.exist(err);
-	});
-	it('It should return a string', function() {
-		reply.result.should.be.a.String
-	});
-});
 
 //-----------------------------
 beforeEach(function() {

@@ -10,9 +10,22 @@ basex.debug_mode = false;
 // commands to be performed
 var xq=["factbook_countries.xq","xslt_countries.xq"];
 
+/**
+ * Description
+ * @method loadfile
+ * @param {} src
+ * @return CallExpression
+ */
 function loadfile(src){
 	return fs.readFileSync(__dirname+"/"+src,'utf-8')
 };
+/**
+ * Description
+ * @method list
+ * @param {} req
+ * @param {} res
+ * @return 
+ */
 function list(req, res) {
     res.writeHead(200, {"Content-Type": "text/html"}); 
     var query1 = session.query(cmd);
