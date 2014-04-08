@@ -27,7 +27,8 @@
         <article>
             <pre class="prettyprint source linenums"><code>/* BaseX Node.js client
  * http://docs.basex.org/wiki/Server_Protocol
- * andy bunce 2011-2012
+ * @author andy bunce
+ * @date 2011-2014
  */
 
 // set this to true to enable console.log msgs for all connections
@@ -37,6 +38,8 @@ var net = require("net"),
     util = require("util"),
     events = require("events"),
     crypto = require("crypto"),
+    stream = require('stream'),
+    CombinedStream = require('combined-stream'),
     Query = require("./lib/query").Query,
     Watch = require("./lib/watch").Watch,
     parser2 = require("./lib/parser2"),
@@ -54,7 +57,7 @@ var tagid = 0; // used to give each Session a unique .tag property
 
 /**
  * Create a session connection
- * @method Session
+ * @constructor Session
  * @param {} host
  * @param {} port
  * @param {} username
@@ -63,14 +66,15 @@ var tagid = 0; // used to give each Session a unique .tag property
  */
 var Session = function(host, port, username, password) {
     var self = this;
-    this.host = host || "127.0.0.1";
-    this.port = port || 1984;
-    this.username = username || "admin";
-    this.password = password || "admin";
+    this.options = {
+        host: host || "127.0.0.1",
+        port: port || 1984,
+        username: username || "admin",
+        password: password || "admin"
+    };
+
     this.tag = "S" + (++tagid);
     this.commands_sent = 0;
-    this.parser2part = null; // parser2 flag
-    // reset
     /**
      * reset state
      * @method reset
@@ -98,11 +102,10 @@ var Session = function(host, port, username, password) {
     };
     this.reset();
 
-    var stream = net.createConnection(this.port, this.host);
-    //stream.setEncoding('utf-8');
-    this.bxp = new parser2.parse(stream);
+    var connHost = net.createConnection(this.options.port, this.options.host);
+    this.bxp = new parser2.parse(connHost);
     //this.bxp.on("data",function(d){console.log("ping",d.toString())});
-    this.stream = stream;
+    this.stream = connHost;
 
     this.stream.on("connect", function() {
         self.state = states.CONNECTING;
@@ -121,8 +124,8 @@ var Session = function(host, port, username, password) {
         } else if (self.state == states.CONNECTING) {
             var read = self.parser();
             if (read) {
-                self.send(self.username + "\0");
-                var s = md5(md5(self.password) + read.data);
+                self.send(self.options.username + "\0");
+                var s = md5(md5(self.options.password) + read.data);
                 self.send(s + "\0");
                 self.state = states.AUTHORIZE;
             }
@@ -141,7 +144,7 @@ var Session = function(host, port, username, password) {
                 self.sendQueueItem();
             }
         } else {
-            throw "Bad state.";
+            throw "Bad state: " + self.state;
         }
     });
 
@@ -196,15 +199,22 @@ var Session = function(host, port, username, password) {
      * @return
      */
     this.send = function(s) {
-        if (typeof s === "function")
-            s = s();
+        console.log("send", typeof s);
+        if (s instanceof CombinedStream) {
+            if (exports.debug_mode) {
+                console.log(self.tag + ">>streaming");
+            };
+            s.pipe(self.stream);
+        } else {
+            if (typeof s === "function") s = s();
 
-        if (exports.debug_mode) {
-            console.log(self.tag + ">>");
-            console.dir(s);
+            if (exports.debug_mode) {
+                console.log(self.tag + ">>");
+                console.dir(s);
+            };
+            self.stream.write(s);
         };
-        self.stream.write(s);
-        self.commands_sent += 1;
+
     };
 
 
@@ -212,7 +222,7 @@ var Session = function(host, port, username, password) {
     /**
      * standard parser read 2 lines and byte
      * @method parser1
-     * @return CallExpression
+     * @return  (ok:bool,result:_,info:_) or null if not in buffer
      */
     this.parser1 = function() {
         return self.bxp.need(["result", "info"], true)
@@ -229,35 +239,22 @@ var Session = function(host, port, username, password) {
 
 
     /**
-     * read line and byte possible error info
+     * read line and byte, if error move result to info
      * @method parser2
-     * @return
+     * @return  ok:bool,result:-,info:- or null if not in buffer
      */
     this.parser2 = function() {
-        if (!self.parser2part) {
-            var r = self.bxp.need(["result"], true)
-            if (!r) return
-            if (r.ok) {
-                return {
-                    ok: true,
-                    result: r.result
-                }
-            } else {
-                self.parser2part = r;
-            }
+        var r = self.bxp.need(["result"], true)
+        if (!r) return
+        if (r.ok) {
+            return r
         } else {
-            var r = self.bxp.need(["info"], false)
-            if (!r) return
-            var res = {
+            return {
                 ok: false,
-                info: r.info,
-                result: self.parser2part.result
+                info: r.result
             }
-            self.parser2part = null;
-            return res
         }
     };
-
 
     /**
      * add command and returns the result:
@@ -333,23 +330,27 @@ var Session = function(host, port, username, password) {
     };
     //@TODO allow input to be stream, currently just string
     this._dbop = function(op, path, input, callback) {
+        var combinedStream = CombinedStream.create();
+        combinedStream.append(op + path + "\0");
+        combinedStream.append(input);
+        combinedStream.append("\0");
         self.send_command({
-            send: op + path + "\0" + input + "\0",
+            send: combinedStream,
             parser: self.parser2,
             callback: callback
         });
     };
 
     /**
-     * Subscribe to event
+     * Subscribe to a named event
      * @method watch
      * @param {} name
-     * @param {} notification
-     * @param {} callback
+     * @param {} notification function to call on event
+     * @param {} callback for this command
      * @return
      */
     this.watch = function(name, notification, callback) {
-        if (self.event == null) { //1st time 
+        if (self.event === null) { //1st time 
             self.send_command({
                 send: "\x0A",
                 parser: self.parsewatch,
@@ -390,8 +391,8 @@ var Session = function(host, port, username, password) {
     this.parsewatch = function() {
         var flds = self.bxp.need(["eport", "id"], false)
         if (flds) {
-            if (self.event == null) {
-                self.event = new Watch(self.host, flds.eport, flds.id)
+            if (self.event === null) {
+                self.event = new Watch(self.options.host, flds.eport, flds.id)
                 self.event.on("connect", self.onData) //need to wait
             }
             flds.ok = true // expected by reader
@@ -474,7 +475,7 @@ var Session = function(host, port, username, password) {
         // console.log("queues waiting send: ",self.q_pending.length,", waiting
         // reply:",self.q_sent.length)
 
-        if (self.q_pending.length == 0 || self.blocked || self.state != states.CONNECTED)
+        if (self.q_pending.length === 0 || self.blocked || self.state != states.CONNECTED)
             return false
 
         var cmd = self.q_pending.shift();
@@ -485,9 +486,9 @@ var Session = function(host, port, username, password) {
         } else {
             self.q_sent.push(cmd);
         };
-
         self.send(cmd.send);
         self.setBlock(cmd.blocking ? true : false);
+        self.commands_sent += 1;
         return true;
     };
 
@@ -522,7 +523,7 @@ function socketError(e) {
  * hash str using md5
  * @method md5
  * @param {} str
- * @return CallExpression
+ * @return md5 value
  */
 function md5(str) {
     return crypto.createHash('md5').update(str).digest("hex");
@@ -540,13 +541,13 @@ exports.Session = Session;
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Global</h3><ul><li><a href="global.html#add">add</a></li><li><a href="global.html#callback">callback</a></li><li><a href="global.html#close">close</a></li><li><a href="global.html#create">create</a></li><li><a href="global.html#execute">execute</a></li><li><a href="global.html#md5">md5</a></li><li><a href="global.html#onData">onData</a></li><li><a href="global.html#parser">parser</a></li><li><a href="global.html#parser1">parser1</a></li><li><a href="global.html#parser2">parser2</a></li><li><a href="global.html#parserOk">parserOk</a></li><li><a href="global.html#parsewatch">parsewatch</a></li><li><a href="global.html#parsewatch2">parsewatch2</a></li><li><a href="global.html#query">query</a></li><li><a href="global.html#replace">replace</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#send">send</a></li><li><a href="global.html#send_command">send_command</a></li><li><a href="global.html#sendQueueItem">sendQueueItem</a></li><li><a href="global.html#Session">Session</a></li><li><a href="global.html#setBlock">setBlock</a></li><li><a href="global.html#socketError">socketError</a></li><li><a href="global.html#store">store</a></li><li><a href="global.html#unwatch">unwatch</a></li><li><a href="global.html#watch">watch</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="Session.html">Session</a></li></ul><h3>Global</h3><ul><li><a href="global.html#add">add</a></li><li><a href="global.html#callback">callback</a></li><li><a href="global.html#close">close</a></li><li><a href="global.html#create">create</a></li><li><a href="global.html#execute">execute</a></li><li><a href="global.html#md5">md5</a></li><li><a href="global.html#onData">onData</a></li><li><a href="global.html#parser">parser</a></li><li><a href="global.html#parser1">parser1</a></li><li><a href="global.html#parser2">parser2</a></li><li><a href="global.html#parserOk">parserOk</a></li><li><a href="global.html#parsewatch">parsewatch</a></li><li><a href="global.html#parsewatch2">parsewatch2</a></li><li><a href="global.html#query">query</a></li><li><a href="global.html#replace">replace</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#send">send</a></li><li><a href="global.html#send_command">send_command</a></li><li><a href="global.html#sendQueueItem">sendQueueItem</a></li><li><a href="global.html#setBlock">setBlock</a></li><li><a href="global.html#socketError">socketError</a></li><li><a href="global.html#store">store</a></li><li><a href="global.html#unwatch">unwatch</a></li><li><a href="global.html#watch">watch</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Fri Apr 04 2014 10:02:19 GMT+0100 (GMT Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Sun Apr 06 2014 22:22:28 GMT+0100 (GMT Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

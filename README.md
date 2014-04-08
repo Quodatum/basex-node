@@ -1,18 +1,17 @@
 # basex - A BaseX client for node.js  
 ===========================
 
-This is BaseX client for Node.js. It is work in progress. 
+This is a [BaseX](http://basex.org/) client for Node.js. It is work in progress. 
 It uses the [client interface](http://docs.basex.org/wiki/Server_Protocol)
  via a socket connection to the BaseX server.
 
-[BaseX](http://basex.org/) is a very light-weight, high-performance and scalable
+BaseX is a very light-weight, high-performance and scalable
  XML Database engine and XPath/XQuery 3.0 Processor, 
  including full support for the W3C Update and Full Text extensions.
 Built as a lightweight Java server, BaseX also supports XSLT, Webdav and RestXQ.  
 
-[![NPM](https://nodei.co/npm/basex.png?stars&downloads)](https://nodei.co/npm/basex/) [![NPM](https://nodei.co/npm-dl/basex.png)](https://nodei.co/npm/basex/)
-
 ## Installing the BaseX Node client
+[![NPM](https://nodei.co/npm/basex.png?stars&downloads)](https://nodei.co/npm/basex/) [![NPM](https://nodei.co/npm-dl/basex.png)](https://nodei.co/npm/basex/)
 
 To install with npm:
 
@@ -94,7 +93,14 @@ mocha -R spec test/test-commands.js
 # Coding
 
 Javascript is formated using js-beautify `js-beautify -r index.js`
+
 Documentation is generated using `jsdoc -r -d docs --verbose index.js`
+
+# Contributers
+
+-    https://github.com/jesseclark
+-    https://github.com/Zearin
+-    https://github.com/apb2006
 
 
 # TODO

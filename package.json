@@ -8,7 +8,9 @@
     "repository": { "type": "git"
                    ,"url": "git://github.com/apb2006/basex-node.git"
                   },
-    "dependencies" : {  },
+    "dependencies" : { 
+    			"combined-stream": "0.0.4"
+    			 },
     "devDependencies": {  
                 "mocha": "*"
                ,"should": "*"

@@ -11,6 +11,8 @@ var net = require("net"),
     util = require("util"),
     events = require("events"),
     crypto = require("crypto"),
+    stream = require('stream'),
+    CombinedStream = require('combined-stream'),
     Query = require("./lib/query").Query,
     Watch = require("./lib/watch").Watch,
     parser2 = require("./lib/parser2"),
@@ -37,10 +39,13 @@ var tagid = 0; // used to give each Session a unique .tag property
  */
 var Session = function(host, port, username, password) {
     var self = this;
-    this.host = host || "127.0.0.1";
-    this.port = port || 1984;
-    this.username = username || "admin";
-    this.password = password || "admin";
+    this.options = {
+        host: host || "127.0.0.1",
+        port: port || 1984,
+        username: username || "admin",
+        password: password || "admin"
+    };
+
     this.tag = "S" + (++tagid);
     this.commands_sent = 0;
     /**
@@ -70,11 +75,10 @@ var Session = function(host, port, username, password) {
     };
     this.reset();
 
-    var stream = net.createConnection(this.port, this.host);
-    //stream.setEncoding('utf-8');
-    this.bxp = new parser2.parse(stream);
+    var connHost = net.createConnection(this.options.port, this.options.host);
+    this.bxp = new parser2.parse(connHost);
     //this.bxp.on("data",function(d){console.log("ping",d.toString())});
-    this.stream = stream;
+    this.stream = connHost;
 
     this.stream.on("connect", function() {
         self.state = states.CONNECTING;
@@ -93,8 +97,8 @@ var Session = function(host, port, username, password) {
         } else if (self.state == states.CONNECTING) {
             var read = self.parser();
             if (read) {
-                self.send(self.username + "\0");
-                var s = md5(md5(self.password) + read.data);
+                self.send(self.options.username + "\0");
+                var s = md5(md5(self.options.password) + read.data);
                 self.send(s + "\0");
                 self.state = states.AUTHORIZE;
             }
@@ -113,7 +117,7 @@ var Session = function(host, port, username, password) {
                 self.sendQueueItem();
             }
         } else {
-            throw "Bad state.";
+            throw "Bad state: " + self.state;
         }
     });
 
@@ -168,15 +172,29 @@ var Session = function(host, port, username, password) {
      * @return
      */
     this.send = function(s) {
-        if (typeof s === "function")
-            s = s();
+        console.log("send", typeof s);
+        if (s instanceof CombinedStream) {
+            if (exports.debug_mode) {
+                console.log(self.tag + ">>streaming");
+            };
+            s.on('end', function (data) {                                  
+          	  console.log("!!!end");
+    
+            });
+            //s.on('data', function (data) {                                  
+          	//  console.log("~~~~~",data.toString('utf8'));
+            //});
+            s.pipe(self.stream);
+        } else {
+            if (typeof s === "function") s = s();
 
-        if (exports.debug_mode) {
-            console.log(self.tag + ">>");
-            console.dir(s);
+            if (exports.debug_mode) {
+                console.log(self.tag + ">>");
+                console.dir(s);
+            };
+            self.stream.write(s);
         };
-        self.stream.write(s);
-        self.commands_sent += 1;
+
     };
 
 
@@ -184,7 +202,7 @@ var Session = function(host, port, username, password) {
     /**
      * standard parser read 2 lines and byte
      * @method parser1
-     * @return {ok:bool,result:?,info:?} or null if not in buffer
+     * @return  (ok:bool,result:_,info:_) or null if not in buffer
      */
     this.parser1 = function() {
         return self.bxp.need(["result", "info"], true)
@@ -203,7 +221,7 @@ var Session = function(host, port, username, password) {
     /**
      * read line and byte, if error move result to info
      * @method parser2
-     * @return {ok:bool,result:?,info:?} or null if not in buffer
+     * @return  ok:bool,result:-,info:- or null if not in buffer
      */
     this.parser2 = function() {
         var r = self.bxp.need(["result"], true)
@@ -292,8 +310,13 @@ var Session = function(host, port, username, password) {
     };
     //@TODO allow input to be stream, currently just string
     this._dbop = function(op, path, input, callback) {
+        var combinedStream = CombinedStream.create();
+        combinedStream.append(op + path + "\0");
+        combinedStream.append(input);
+        combinedStream.append("\0");
         self.send_command({
-            send: op + path + "\0" + input + "\0",
+        	blocking : true, // @todo why??
+            send: combinedStream,
             parser: self.parser2,
             callback: callback
         });
@@ -350,7 +373,7 @@ var Session = function(host, port, username, password) {
         var flds = self.bxp.need(["eport", "id"], false)
         if (flds) {
             if (self.event === null) {
-                self.event = new Watch(self.host, flds.eport, flds.id)
+                self.event = new Watch(self.options.host, flds.eport, flds.id)
                 self.event.on("connect", self.onData) //need to wait
             }
             flds.ok = true // expected by reader
@@ -444,9 +467,9 @@ var Session = function(host, port, username, password) {
         } else {
             self.q_sent.push(cmd);
         };
-
         self.send(cmd.send);
         self.setBlock(cmd.blocking ? true : false);
+        self.commands_sent += 1;
         return true;
     };
 
@@ -457,7 +480,7 @@ var Session = function(host, port, username, password) {
      * @return
      */
     this.setBlock = function(state) {
-        //console.log("blocked:",state)
+        console.log("blocked:",state)
         self.blocked = state;
         while (self.sendQueueItem()) {};
     };
