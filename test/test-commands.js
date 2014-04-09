@@ -60,7 +60,7 @@ describe('Send an invalid command:  2+', function() {
 	});
 });
 
-describe('Create a database with execute', function() {
+describe('Create a database testdb using execute', function() {
 	var reply, err;
 	before(function(done) {
 		session.execute("create db testdb", function(e, r) {
@@ -106,7 +106,7 @@ describe('Add an invalid document', function() {
 	});
 });
 
-describe('drop db database', function() {
+describe('drop db testdb', function() {
 	var reply, err;
 	before(function(done) {
 		session.execute("drop db testdb", function(e, r) {

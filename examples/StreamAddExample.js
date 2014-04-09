@@ -10,15 +10,14 @@ var fs = require("fs");
 var client = new basex.Session("localhost", 1984, "admin", "admin");
 basex.debug_mode = true;
 // create new database
- client.execute("open database", log.print);
- //var s=fs.createReadStream(__dirname+ "\\books.xml");
- var s=fs.createReadStream("C:\\Program Files (x86)\\basex\\webapp\\xmark\\xmark\\auction.xml");
+ client.execute("create db test_db", log.print);
+ var s=fs.createReadStream(__dirname+ "\\books.xml");
 
 // add document
 client.add("/world/World.xml", s, log.print);
 
 // drop database
-//client.execute("drop db database", log.print);
+client.execute("drop db test_db", log.print);
 
 // close session
 client.close();

@@ -8,7 +8,7 @@ var log = require("../debug");
 var client = new basex.Session("localhost", 1984, "admin", "admin");
 basex.debug_mode = true;
 // create new database
-client.execute("create db database", log.print);
+client.execute("create db test_db", log.print);
 
 // add document
 client.add("/world/World.xml", "<x>Hello World!</x>", log.print);
@@ -20,7 +20,7 @@ client.add("Universe.xml", "<x>Hello Universe!</x>", log.print);
 client.execute("xquery /", log.print);
 
 // drop database
-client.execute("drop db database", log.print);
+client.execute("drop db test_db", log.print);
 
 // close session
 client.close();

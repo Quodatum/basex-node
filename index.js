@@ -11,7 +11,7 @@ var net = require("net"),
     util = require("util"),
     events = require("events"),
     crypto = require("crypto"),
-    stream = require('stream'),
+    Stream = require('stream').Stream,
     CombinedStream = require('combined-stream'),
     Query = require("./lib/query").Query,
     Watch = require("./lib/watch").Watch,
@@ -79,7 +79,7 @@ var Session = function(host, port, username, password) {
     this.bxp = new parser2.parse(connHost);
     //this.bxp.on("data",function(d){console.log("ping",d.toString())});
     this.stream = connHost;
-
+    this.streamOut = false; // true while sending stream
     this.stream.on("connect", function() {
         self.state = states.CONNECTING;
         if (exports.debug_mode) {
@@ -158,7 +158,7 @@ var Session = function(host, port, username, password) {
     });
 
     this.stream.on("end", function() {
-        // console.log(self.tag+": stream end");
+        console.log(self.tag + ": stream end");
     });
 
     this.stream.on("drain", function() {
@@ -172,19 +172,24 @@ var Session = function(host, port, username, password) {
      * @return
      */
     this.send = function(s) {
-        console.log("send", typeof s);
+        //console.log("send", typeof s);
         if (s instanceof CombinedStream) {
+        	s.on('end', function(data) {
+                self.streamOut = false;
+                if (exports.debug_mode){
+                	console.log(self.tag + ">>streaming end");
+                };
+            });
             if (exports.debug_mode) {
                 console.log(self.tag + ">>streaming");
             };
-            s.on('end', function (data) {                                  
-          	  console.log("!!!end");
-    
+            self.streamOut = true;
+            s.on('data', function(data) {
+                console.log("~~~~~", data.toString('utf8'));
             });
-            //s.on('data', function (data) {                                  
-          	//  console.log("~~~~~",data.toString('utf8'));
-            //});
-            s.pipe(self.stream);
+            s.pipe(self.stream, {
+                end: false
+            });
         } else {
             if (typeof s === "function") s = s();
 
@@ -201,19 +206,19 @@ var Session = function(host, port, username, password) {
 
     /**
      * standard parser read 2 lines and byte
-     * @method parser1
+     * @method parseResInfo
      * @return  (ok:bool,result:_,info:_) or null if not in buffer
      */
-    this.parser1 = function() {
+    this.parseResInfo = function() {
         return self.bxp.need(["result", "info"], true)
     };
 
     /**
      * read status byte
-     * @method parserOk
+     * @method parseByte
      * @return CallExpression
      */
-    this.parserOk = function() {
+    this.parseByte = function() {
         return self.bxp.popByte()
     };
 
@@ -223,7 +228,7 @@ var Session = function(host, port, username, password) {
      * @method parser2
      * @return  ok:bool,result:-,info:- or null if not in buffer
      */
-    this.parser2 = function() {
+    this.parseResult = function() {
         var r = self.bxp.need(["result"], true)
         if (!r) return
         if (r.ok) {
@@ -246,7 +251,7 @@ var Session = function(host, port, username, password) {
     this.execute = function(cmd, callback) {
         self.send_command({
             send: cmd + "\0",
-            parser: self.parser1,
+            parser: self.parseResInfo,
             callback: callback
         });
     };
@@ -308,16 +313,15 @@ var Session = function(host, port, username, password) {
     this.store = function(path, input, callback) {
         self._dbop("\x0D", path, input, callback)
     };
-    //@TODO allow input to be stream, currently just string
+    //  input can be stream
     this._dbop = function(op, path, input, callback) {
         var combinedStream = CombinedStream.create();
         combinedStream.append(op + path + "\0");
         combinedStream.append(input);
         combinedStream.append("\0");
         self.send_command({
-        	blocking : true, // @todo why??
             send: combinedStream,
-            parser: self.parser2,
+            parser: self.parseResult,
             callback: callback
         });
     };
@@ -341,7 +345,6 @@ var Session = function(host, port, username, password) {
                  * @return
                  */
                 callback: function() {
-
                     self.event.add(name, notification)
                     // add at front
                     self.send_command({
@@ -404,7 +407,7 @@ var Session = function(host, port, username, password) {
     this.unwatch = function(name, callback) {
         self.send_command({
             send: "\x0B" + name + "\0",
-            parser: self.parser2,
+            parser: selfparseResult,
             /**
              * Description
              * @method callback
@@ -429,7 +432,7 @@ var Session = function(host, port, username, password) {
         self.closefn = callback;
         self.send_command({
             send: "exit" + "\0",
-            parser: self.parserOk
+            parser: self.parseByte
             // sometime get this, timing
         });
     };
@@ -456,7 +459,10 @@ var Session = function(host, port, username, password) {
         // console.log("queues waiting send: ",self.q_pending.length,", waiting
         // reply:",self.q_sent.length)
 
-        if (self.q_pending.length === 0 || self.blocked || self.state != states.CONNECTED)
+        if (self.q_pending.length === 0 ||
+            self.streamOut ||
+            self.blocked ||
+            self.state != states.CONNECTED)
             return false
 
         var cmd = self.q_pending.shift();
@@ -480,7 +486,7 @@ var Session = function(host, port, username, password) {
      * @return
      */
     this.setBlock = function(state) {
-        console.log("blocked:",state)
+       // console.log("blocked:", state)
         self.blocked = state;
         while (self.sendQueueItem()) {};
     };
@@ -497,7 +503,7 @@ function socketError(e) {
     if (e.code == 'ECONNREFUSED') {
         console.log('ECONNREFUSED: connection refused. Check BaseX server is running.');
     } else {
-        console.log(e);
+        console.log("SOCKET ERROR: ", e);
     }
 }
 /**

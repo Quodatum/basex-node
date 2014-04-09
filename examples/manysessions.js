@@ -4,7 +4,7 @@
 var basex =require("../index");
 var log = require("../debug");
 basex.debug_mode = false;
-var sCount=1000; // max 200
+var sCount=300; // max 200
 var sessions=[];
 //show supplied msg then basex server response
 /**
@@ -24,7 +24,7 @@ for(i=0;i<sCount;i++){
 	sessions.push(new basex.Session())	
 };
 
-sessions.map(function(s){return s.execute("xquery 1 to 50",log.printMsg(s.tag))})
+sessions.map(function(s){return s.execute("xquery 1 to 10",log.printMsg(s.tag))})
 sessions.map(function(s){return s.close(track(s.tag))})
 //sessions.map(function(s){s.execute("xquery 1 to 10",log.printMsg(s.tag))})
 

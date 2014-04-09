@@ -90,17 +90,21 @@ mocha -R spec test/test-commands.js
   13 tests complete (408 ms)
 
 ```
-# Coding
+# Tools
 
 Javascript is formated using js-beautify `js-beautify -r index.js`
 
 Documentation is generated using `jsdoc -r -d docs --verbose index.js`
 
-# Contributers
+# Contributing
 
--    https://github.com/jesseclark
--    https://github.com/Zearin
--    https://github.com/apb2006
+Anyone is welcome to submit issues and pull requests
+
+thanks to 
+
+-    [jesseclark](https://github.com/jesseclark)
+-    [Zearin](https://github.com/Zearin)
+
 
 
 # TODO

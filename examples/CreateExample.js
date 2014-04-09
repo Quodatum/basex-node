@@ -9,13 +9,13 @@ var log = require("../debug");
 var client = new basex.Session("localhost", 1984, "admin", "admin");
 
 // create new database
-client.create("database", "<x>Hello World!</x>", log.print);
+client.create("test_db", "<x>Hello World!</x>", log.print);
 
 // run query on database
 client.execute("xquery /", log.print);
 
 // drop database
-client.execute("drop db database", log.print);
+client.execute("drop db test_db", log.print);
 
 // close session
 client.close();
