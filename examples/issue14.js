@@ -19,6 +19,5 @@ client.add("/world/World.xml", "<\"x\">Hello World!</x>", log.print);
 
 // drop database
 client.execute("drop db test_db", log.print);
-client.execute("XQUERY 1 to 5",log.print);
 // close session
 client.close();

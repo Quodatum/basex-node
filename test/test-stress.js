@@ -1,4 +1,4 @@
-/* basex-node test interface using mocha, with large data volumes
+/* basex-node test interface using mocha, with streaming data
  * 
  */
 

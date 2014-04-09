@@ -179,6 +179,7 @@ var Session = function(host, port, username, password) {
                 if (exports.debug_mode){
                 	console.log(self.tag + ">>streaming end");
                 };
+                self.emit("foo")
             });
             if (exports.debug_mode) {
                 console.log(self.tag + ">>streaming");
@@ -202,7 +203,10 @@ var Session = function(host, port, username, password) {
 
     };
 
-
+    this.on("foo",function(){
+    	console.log("FF");
+    	self.sendQueueItem()
+    })
 
     /**
      * standard parser read 2 lines and byte

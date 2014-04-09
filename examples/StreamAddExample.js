@@ -8,7 +8,7 @@ var fs = require("fs");
 
 // create session
 var client = new basex.Session("localhost", 1984, "admin", "admin");
-basex.debug_mode = true;
+basex.debug_mode = false;
 // create new database
  client.execute("create db test_db", log.print);
  var s=fs.createReadStream(__dirname+ "\\books.xml");
