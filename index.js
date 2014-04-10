@@ -2,6 +2,7 @@
  * http://docs.basex.org/wiki/Server_Protocol
  * @author andy bunce
  * @date 2011-2014
+ * @licence BSD
  */
 
 // set this to true to enable console.log msgs for all connections
@@ -174,8 +175,8 @@ var Session = function(host, port, username, password) {
     this.write = function(s) {
         //console.log("send", typeof s);
         if (s instanceof CombinedStream) {
-            s.on('end', function(data) {
 
+            s.on('end', function(data) {
                 if (exports.debug_mode) {
                     console.log(self.tag + ">>streaming end");
                 };
@@ -227,7 +228,6 @@ var Session = function(host, port, username, password) {
         return self.bxp.popByte()
     };
 
-
     /**
      * read line and byte, if error move result to info
      * @method parser2
@@ -235,14 +235,10 @@ var Session = function(host, port, username, password) {
      */
     this.parseResult = function() {
         var r = self.bxp.need(["result"], true)
-        if (!r) return
-        if (r.ok) {
-            return r
-        } else {
-            return {
-                ok: false,
-                info: r.result
-            }
+        if (!r) return r;
+        return (r.ok) ? r : {
+            ok: false,
+            info: r.result
         }
     };
 

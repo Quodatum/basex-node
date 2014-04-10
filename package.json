@@ -1,6 +1,6 @@
 {
 	"name": "basex",
-	"version": "0.6.3",
+	"version": "0.7.0",
 	"description": "A BaseX (XML database) client library",
 	"keywords": 
 	[
@@ -38,7 +38,7 @@
 
 	"engines": 
 	{
-		"node": ">=0.10"
+		"node": ">=0.6"
 	},
 
 	"license": "BSD"

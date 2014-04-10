@@ -1,6 +1,9 @@
+## v0.7.0 - 2014-04-11
+- add streaming to server
+
 ## v0.6.3 - 2014-04-03
 - fix handling for add where doc is invalid (#14)
-- fix tests 
+- fix tests for node 0.10
 - applied js-beautify to the code
 
 ## v0.6.2 - 2013-07-13
