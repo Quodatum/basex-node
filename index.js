@@ -79,7 +79,7 @@ var Session = function(host, port, username, password) {
     this.bxp = new parser2.parse(connHost);
     //this.bxp.on("data",function(d){console.log("ping",d.toString())});
     this.stream = connHost;
-    this.streamOut = false; // true while sending stream
+    this._streaming = false; // true while sending stream
     this.stream.on("connect", function() {
         self.state = states.CONNECTING;
         if (exports.debug_mode) {
@@ -97,9 +97,9 @@ var Session = function(host, port, username, password) {
         } else if (self.state == states.CONNECTING) {
             var read = self.parser();
             if (read) {
-                self.send(self.options.username + "\0");
+                self.write(self.options.username + "\0");
                 var s = md5(md5(self.options.password) + read.data);
-                self.send(s + "\0");
+                self.write(s + "\0");
                 self.state = states.AUTHORIZE;
             }
         } else if (self.state == states.AUTHORIZE) {
@@ -167,27 +167,28 @@ var Session = function(host, port, username, password) {
 
     /**
      * send to server
-     * @method send
-     * @param {} s
+     * @method write
+     * @param {} s data to send
      * @return
      */
-    this.send = function(s) {
+    this.write = function(s) {
         //console.log("send", typeof s);
         if (s instanceof CombinedStream) {
-        	s.on('end', function(data) {
-                self.streamOut = false;
-                if (exports.debug_mode){
-                	console.log(self.tag + ">>streaming end");
+            s.on('end', function(data) {
+
+                if (exports.debug_mode) {
+                    console.log(self.tag + ">>streaming end");
                 };
-                self.emit("foo")
+                self.emit("drain")
             });
             if (exports.debug_mode) {
                 console.log(self.tag + ">>streaming");
+                s.on('data', function(data) {
+                    console.dir(data);
+                });
             };
-            self.streamOut = true;
-            s.on('data', function(data) {
-                console.log("~~~~~", data.toString('utf8'));
-            });
+            self._streaming = true;
+
             s.pipe(self.stream, {
                 end: false
             });
@@ -203,9 +204,9 @@ var Session = function(host, port, username, password) {
 
     };
 
-    this.on("foo",function(){
-    	console.log("FF");
-    	self.sendQueueItem()
+    this.on("drain", function() {
+        self._streaming = false;
+        self.sendQueueItem();
     })
 
     /**
@@ -464,7 +465,7 @@ var Session = function(host, port, username, password) {
         // reply:",self.q_sent.length)
 
         if (self.q_pending.length === 0 ||
-            self.streamOut ||
+            self._streaming ||
             self.blocked ||
             self.state != states.CONNECTED)
             return false
@@ -477,7 +478,7 @@ var Session = function(host, port, username, password) {
         } else {
             self.q_sent.push(cmd);
         };
-        self.send(cmd.send);
+        self.write(cmd.send);
         self.setBlock(cmd.blocking ? true : false);
         self.commands_sent += 1;
         return true;
@@ -490,7 +491,7 @@ var Session = function(host, port, username, password) {
      * @return
      */
     this.setBlock = function(state) {
-       // console.log("blocked:", state)
+        // console.log("blocked:", state)
         self.blocked = state;
         while (self.sendQueueItem()) {};
     };

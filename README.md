@@ -100,14 +100,14 @@ Documentation is generated using `jsdoc -r -d docs --verbose index.js`
 
 Anyone is welcome to submit issues and pull requests
 
-thanks to 
+Thanks to: 
 
 -    [jesseclark](https://github.com/jesseclark)
 -    [Zearin](https://github.com/Zearin)
 
 
 
-# TODO
+# Todo
  * stream i/o
  * reconnect
 
@@ -116,7 +116,7 @@ thanks to
 Parts inspired by [node_redis](https://github.com/mranney/node_redis), 
 [BaseX Java client](https://github.com/BaseXdb/basex/blob/master/basex-examples/src/main/java/org/basex/examples/api/BaseXClient.java)
 
-#license
+# License
 
 BSD license
 
