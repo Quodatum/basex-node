@@ -11,7 +11,7 @@ var session = new basex.Session();
 describe('Create a database testdb from stream', function() {
 	var reply, err;
 	before(function(done) {
-		var str=fs.createReadStream(__dirname+ "\\resources\\books.xml");
+		var str=fs.createReadStream(__dirname+ "/resources/books.xml");
 		session.create("testdb",str, function(e, r) {
 			reply = r;
 			err = e;

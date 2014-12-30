@@ -39,7 +39,7 @@ Once BaseX is installed and the BaseX server is running, test it.
 ## Installing BaseX
 1. Java is required
 1. [Download](http://basex.org/products/download/all-downloads/) and install BaseX
-(tested against version 7.7)
+(tested against version 7.9)
 1. Run `basexserver -S`
 
 ## API specification

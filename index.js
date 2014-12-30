@@ -98,8 +98,20 @@ var Session = function(host, port, username, password) {
         } else if (self.state == states.CONNECTING) {
             var read = self.parser();
             if (read) {
+            	var nonce,response,code;
+            	response=read.data.split(":");
+            	if(response.length>1){
+            		 // support for digest authentication
+            		code = self.options.username + ':' + response[0] + ':' + self.options.password;
+            		nonce = response[1];	
+            	}else{
+            		// support for cram-md5 (Version < 8.0)
+            		code = self.options.password;
+            		nonce = response[0];	
+            	};
+            	//console.log("READ",response);
                 self.write(self.options.username + "\0");
-                var s = md5(md5(self.options.password) + read.data);
+                var s = md5(md5(code) + nonce);
                 self.write(s + "\0");
                 self.state = states.AUTHORIZE;
             }

@@ -14,7 +14,7 @@ basex.debug_mode = false;
  client.execute("create db test_db", log.print);
  
 // add document from stream
- var s=fs.createReadStream(__dirname+ "\\books.xml"); 
+ var s=fs.createReadStream(__dirname+ "/books.xml"); 
 client.add("/world/World.xml", s, log.print);
 
 // drop database

@@ -1,5 +1,6 @@
-## v0.7.0 - 2014-04-11
-- add streaming to server
+## v0.7.0 - 2014-12-30
+- add streaming data to server
+- support v8 style authentication 
 
 ## v0.6.3 - 2014-04-03
 - fix handling for add where doc is invalid (#14)
