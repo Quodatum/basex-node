@@ -112,7 +112,8 @@ Returns process information.
 Closes the session. 
 
 # The query object
-Create a query object `session.query(query)`, then `bind` any external variables, finally 
+Create a query object `var q=session.query(query)`, then `bind` any external variables, 
+finally call `results or `execute`
 ##bind
 ````
    query.bind(name,value,type,callback);
