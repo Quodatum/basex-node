@@ -18,7 +18,8 @@ The utility function `print` in the debug module shows the syntax:
 				console.dir(reply);
 			}
 		}; 
-
+The API is modelled closely on the [BaseX client protocol](http://docs.basex.org/wiki/Server_Protocol#Command_Protocol)
+See the [examples](https://github.com/apb2006/basex-node/tree/master/examples) for more details 
 # Create a Client Session
 ````
         var basex=require("basex");
