@@ -171,7 +171,9 @@ var Session = function(host, port, username, password) {
     });
 
     this.stream.on("end", function() {
+      if (exports.debug_mode) {
         console.log(self.tag + ": stream end");
+      }
     });
 
     this.stream.on("drain", function() {

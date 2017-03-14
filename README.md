@@ -110,7 +110,11 @@ Thanks to:
 # Todo
  * stream i/o
  * reconnect
-
+ 
+# Alternative clients
+* https://github.com/alxarch/basex-stream
+* https://github.com/nerdenough/node-basex
+* https://github.com/hanshuebner/simple-basex
 
 # Inspiration
 Parts inspired by [node_redis](https://github.com/mranney/node_redis), 
