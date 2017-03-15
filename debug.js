@@ -1,6 +1,6 @@
 /**
  * example functions for use as test callbacks
- * andy bunce 2011-2014
+ * andy bunce 2011-2017
  **/
 
 /**

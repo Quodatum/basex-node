@@ -1,5 +1,5 @@
 /*
- * This example shows how new databases can be created.
+ * has no method on #17
  *
  */
 var basex = require("../index");

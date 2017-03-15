@@ -1,7 +1,7 @@
 /* BaseX Node.js client
  * http://docs.basex.org/wiki/Server_Protocol
  * @author andy bunce
- * @date 2011-2014
+ * @date 2011-2017
  * @licence BSD
  */
 
@@ -15,7 +15,6 @@ var net = require("net"),
     Stream = require('stream').Stream,
     CombinedStream = require('combined-stream'),
     Query = require("./lib/query").Query,
-    Watch = require("./lib/watch").Watch,
     parser2 = require("./lib/parser2"),
     Queue = require("./lib/queue").Queue;
 
@@ -98,18 +97,18 @@ var Session = function(host, port, username, password) {
         } else if (self.state == states.CONNECTING) {
             var read = self.parser();
             if (read) {
-            	var nonce,response,code;
-            	response=read.data.split(":");
-            	if(response.length>1){
-            		 // support for digest authentication
-            		code = self.options.username + ':' + response[0] + ':' + self.options.password;
-            		nonce = response[1];	
-            	}else{
-            		// support for cram-md5 (Version < 8.0)
-            		code = self.options.password;
-            		nonce = response[0];	
-            	};
-            	//console.log("READ",response);
+                var nonce, response, code;
+                response = read.data.split(":");
+                if (response.length > 1) {
+                    // support for digest authentication
+                    code = self.options.username + ':' + response[0] + ':' + self.options.password;
+                    nonce = response[1];
+                } else {
+                    // support for cram-md5 (Version < 8.0)
+                    code = self.options.password;
+                    nonce = response[0];
+                };
+                //console.log("READ",response);
                 self.write(self.options.username + "\0");
                 var s = md5(md5(code) + nonce);
                 self.write(s + "\0");
@@ -171,9 +170,9 @@ var Session = function(host, port, username, password) {
     });
 
     this.stream.on("end", function() {
-      if (exports.debug_mode) {
-        console.log(self.tag + ": stream end");
-      }
+        if (exports.debug_mode) {
+            console.log(self.tag + ": stream end");
+        }
     });
 
     this.stream.on("drain", function() {
@@ -341,101 +340,6 @@ var Session = function(host, port, username, password) {
         });
     };
 
-    /**
-     * Subscribe to a named event
-     * @method watch
-     * @param {} name
-     * @param {} notification function to call on event
-     * @param {} callback for this command
-     * @return
-     */
-    this.watch = function(name, notification, callback) {
-        if (self.event === null) { //1st time 
-            self.send_command({
-                send: "\x0A",
-                parser: self.parsewatch,
-                /**
-                 * Description
-                 * @method callback
-                 * @return
-                 */
-                callback: function() {
-                    self.event.add(name, notification)
-                    // add at front
-                    self.send_command({
-                        send: name + "\0",
-                        parser: self.parsewatch2,
-                        callback: callback
-                    });
-                    self.setBlock(false);
-                },
-                blocking: true
-            })
-        } else {
-            self.event.add(name, notification)
-            self.send_command({
-                send: "\x0A" + name + "\0",
-                parser: self.parsewatch2,
-                callback: callback
-            });
-        }
-
-    };
-
-    /**
-     * parse 1st watch response, expect port,id
-     * @method parsewatch
-     * @return
-     */
-    this.parsewatch = function() {
-        var flds = self.bxp.need(["eport", "id"], false)
-        if (flds) {
-            if (self.event === null) {
-                self.event = new Watch(self.options.host, flds.eport, flds.id)
-                self.event.on("connect", self.onData) //need to wait
-            }
-            flds.ok = true // expected by reader
-            return flds;
-        }
-    };
-
-
-    /**
-     * parse other watch response
-     * @method parsewatch2
-     * @return
-     */
-    this.parsewatch2 = function() {
-        // wait info and connected
-        //console.log("qqqq",self.event.isConnected)
-        //console.log(".....parsewatch2",self.buffer)
-        if (self.event.isConnected) return self.bxp.need(["info"], true)
-    };
-
-    /**
-     * unsubscribe to event
-     * @method unwatch
-     * @param {} name
-     * @param {} callback
-     * @return
-     */
-    this.unwatch = function(name, callback) {
-        self.send_command({
-            send: "\x0B" + name + "\0",
-            parser: selfparseResult,
-            /**
-             * Description
-             * @method callback
-             * @param {} err
-             * @param {} reply
-             * @return
-             */
-            callback: function(err, reply) {
-                self.event.remove(name);
-                callback(err, reply);
-            }
-        });
-    };
 
     /**
      * end the session, sash callback, for stream end

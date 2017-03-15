@@ -28,7 +28,8 @@
             <pre class="prettyprint source linenums"><code>/* BaseX Node.js client
  * http://docs.basex.org/wiki/Server_Protocol
  * @author andy bunce
- * @date 2011-2014
+ * @date 2011-2017
+ * @licence BSD
  */
 
 // set this to true to enable console.log msgs for all connections
@@ -38,10 +39,9 @@ var net = require("net"),
     util = require("util"),
     events = require("events"),
     crypto = require("crypto"),
-    stream = require('stream'),
+    Stream = require('stream').Stream,
     CombinedStream = require('combined-stream'),
     Query = require("./lib/query").Query,
-    Watch = require("./lib/watch").Watch,
     parser2 = require("./lib/parser2"),
     Queue = require("./lib/queue").Queue;
 
@@ -106,7 +106,7 @@ var Session = function(host, port, username, password) {
     this.bxp = new parser2.parse(connHost);
     //this.bxp.on("data",function(d){console.log("ping",d.toString())});
     this.stream = connHost;
-
+    this._streaming = false; // true while sending stream
     this.stream.on("connect", function() {
         self.state = states.CONNECTING;
         if (exports.debug_mode) {
@@ -124,9 +124,21 @@ var Session = function(host, port, username, password) {
         } else if (self.state == states.CONNECTING) {
             var read = self.parser();
             if (read) {
-                self.send(self.options.username + "\0");
-                var s = md5(md5(self.options.password) + read.data);
-                self.send(s + "\0");
+                var nonce, response, code;
+                response = read.data.split(":");
+                if (response.length > 1) {
+                    // support for digest authentication
+                    code = self.options.username + ':' + response[0] + ':' + self.options.password;
+                    nonce = response[1];
+                } else {
+                    // support for cram-md5 (Version &lt; 8.0)
+                    code = self.options.password;
+                    nonce = response[0];
+                };
+                //console.log("READ",response);
+                self.write(self.options.username + "\0");
+                var s = md5(md5(code) + nonce);
+                self.write(s + "\0");
                 self.state = states.AUTHORIZE;
             }
         } else if (self.state == states.AUTHORIZE) {
@@ -185,7 +197,9 @@ var Session = function(host, port, username, password) {
     });
 
     this.stream.on("end", function() {
-        // console.log(self.tag+": stream end");
+        if (exports.debug_mode) {
+            console.log(self.tag + ": stream end");
+        }
     });
 
     this.stream.on("drain", function() {
@@ -194,24 +208,31 @@ var Session = function(host, port, username, password) {
 
     /**
      * send to server
-     * @method send
-     * @param {} s
+     * @method write
+     * @param {} s data to send
      * @return
      */
-    this.send = function(s) {
-        console.log("send", typeof s);
+    this.write = function(s) {
+        //console.log("send", typeof s);
         if (s instanceof CombinedStream) {
+
+            s.on('end', function(data) {
+                if (exports.debug_mode) {
+                    console.log(self.tag + ">>streaming end");
+                };
+                self.emit("drain")
+            });
             if (exports.debug_mode) {
                 console.log(self.tag + ">>streaming");
-                s.on('end', function(data) {
-                    console.log(self.tag + ">>streaming end");
+                s.on('data', function(data) {
+                    console.dir(data);
                 });
             };
+            self._streaming = true;
 
-            //s.on('data', function (data) {                                  
-            //  console.log("~~~~~",data.toString('utf8'));
-            //});
-            s.pipe(self.stream);
+            s.pipe(self.stream, {
+                end: false
+            });
         } else {
             if (typeof s === "function") s = s();
 
@@ -224,7 +245,10 @@ var Session = function(host, port, username, password) {
 
     };
 
-
+    this.on("drain", function() {
+        self._streaming = false;
+        self.sendQueueItem();
+    })
 
     /**
      * standard parser read 2 lines and byte
@@ -237,29 +261,24 @@ var Session = function(host, port, username, password) {
 
     /**
      * read status byte
-     * @method parseStatus
+     * @method parseByte
      * @return CallExpression
      */
-    this.parseStatus = function() {
+    this.parseByte = function() {
         return self.bxp.popByte()
     };
-
 
     /**
      * read line and byte, if error move result to info
      * @method parser2
      * @return  ok:bool,result:-,info:- or null if not in buffer
      */
-    this.parser2 = function() {
+    this.parseResult = function() {
         var r = self.bxp.need(["result"], true)
-        if (!r) return
-        if (r.ok) {
-            return r
-        } else {
-            return {
-                ok: false,
-                info: r.result
-            }
+        if (!r) return r;
+        return (r.ok) ? r : {
+            ok: false,
+            info: r.result
         }
     };
 
@@ -342,108 +361,12 @@ var Session = function(host, port, username, password) {
         combinedStream.append(input);
         combinedStream.append("\0");
         self.send_command({
-            blocking: true, // @todo why??
             send: combinedStream,
-            parser: self.parser2,
+            parser: self.parseResult,
             callback: callback
         });
     };
 
-    /**
-     * Subscribe to a named event
-     * @method watch
-     * @param {} name
-     * @param {} notification function to call on event
-     * @param {} callback for this command
-     * @return
-     */
-    this.watch = function(name, notification, callback) {
-        if (self.event === null) { //1st time 
-            self.send_command({
-                send: "\x0A",
-                parser: self.parsewatch,
-                /**
-                 * Description
-                 * @method callback
-                 * @return
-                 */
-                callback: function() {
-                    self.event.add(name, notification)
-                    // add at front
-                    self.send_command({
-                        send: name + "\0",
-                        parser: self.parsewatch2,
-                        callback: callback
-                    });
-                    self.setBlock(false);
-                },
-                blocking: true
-            })
-        } else {
-            self.event.add(name, notification)
-            self.send_command({
-                send: "\x0A" + name + "\0",
-                parser: self.parsewatch2,
-                callback: callback
-            });
-        }
-
-    };
-
-    /**
-     * parse 1st watch response, expect port,id
-     * @method parsewatch
-     * @return
-     */
-    this.parsewatch = function() {
-        var flds = self.bxp.need(["eport", "id"], false)
-        if (flds) {
-            if (self.event === null) {
-                self.event = new Watch(self.options.host, flds.eport, flds.id)
-                self.event.on("connect", self.onData) //need to wait
-            }
-            flds.ok = true // expected by reader
-            return flds;
-        }
-    };
-
-
-    /**
-     * parse other watch response
-     * @method parsewatch2
-     * @return
-     */
-    this.parsewatch2 = function() {
-        // wait info and connected
-        //console.log("qqqq",self.event.isConnected)
-        //console.log(".....parsewatch2",self.buffer)
-        if (self.event.isConnected) return self.bxp.need(["info"], true)
-    };
-
-    /**
-     * unsubscribe to event
-     * @method unwatch
-     * @param {} name
-     * @param {} callback
-     * @return
-     */
-    this.unwatch = function(name, callback) {
-        self.send_command({
-            send: "\x0B" + name + "\0",
-            parser: self.parser2,
-            /**
-             * Description
-             * @method callback
-             * @param {} err
-             * @param {} reply
-             * @return
-             */
-            callback: function(err, reply) {
-                self.event.remove(name);
-                callback(err, reply);
-            }
-        });
-    };
 
     /**
      * end the session, sash callback, for stream end
@@ -455,7 +378,7 @@ var Session = function(host, port, username, password) {
         self.closefn = callback;
         self.send_command({
             send: "exit" + "\0",
-            parser: self.parseStatus
+            parser: self.parseByte
             // sometime get this, timing
         });
     };
@@ -482,7 +405,10 @@ var Session = function(host, port, username, password) {
         // console.log("queues waiting send: ",self.q_pending.length,", waiting
         // reply:",self.q_sent.length)
 
-        if (self.q_pending.length === 0 || self.blocked || self.state != states.CONNECTED)
+        if (self.q_pending.length === 0 ||
+            self._streaming ||
+            self.blocked ||
+            self.state != states.CONNECTED)
             return false
 
         var cmd = self.q_pending.shift();
@@ -493,7 +419,7 @@ var Session = function(host, port, username, password) {
         } else {
             self.q_sent.push(cmd);
         };
-        self.send(cmd.send);
+        self.write(cmd.send);
         self.setBlock(cmd.blocking ? true : false);
         self.commands_sent += 1;
         return true;
@@ -506,7 +432,7 @@ var Session = function(host, port, username, password) {
      * @return
      */
     this.setBlock = function(state) {
-        console.log("blocked:", state)
+        // console.log("blocked:", state)
         self.blocked = state;
         while (self.sendQueueItem()) {};
     };
@@ -523,7 +449,7 @@ function socketError(e) {
     if (e.code == 'ECONNREFUSED') {
         console.log('ECONNREFUSED: connection refused. Check BaseX server is running.');
     } else {
-        console.log(e);
+        console.log("SOCKET ERROR: ", e);
     }
 }
 /**
@@ -548,13 +474,13 @@ exports.Session = Session;
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="Session.html">Session</a></li></ul><h3>Global</h3><ul><li><a href="global.html#add">add</a></li><li><a href="global.html#callback">callback</a></li><li><a href="global.html#close">close</a></li><li><a href="global.html#create">create</a></li><li><a href="global.html#execute">execute</a></li><li><a href="global.html#md5">md5</a></li><li><a href="global.html#onData">onData</a></li><li><a href="global.html#parser">parser</a></li><li><a href="global.html#parseResInfo">parseResInfo</a></li><li><a href="global.html#parser2">parser2</a></li><li><a href="global.html#parseStatus">parseStatus</a></li><li><a href="global.html#parsewatch">parsewatch</a></li><li><a href="global.html#parsewatch2">parsewatch2</a></li><li><a href="global.html#query">query</a></li><li><a href="global.html#replace">replace</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#send">send</a></li><li><a href="global.html#send_command">send_command</a></li><li><a href="global.html#sendQueueItem">sendQueueItem</a></li><li><a href="global.html#setBlock">setBlock</a></li><li><a href="global.html#socketError">socketError</a></li><li><a href="global.html#store">store</a></li><li><a href="global.html#unwatch">unwatch</a></li><li><a href="global.html#watch">watch</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="Session.html">Session</a></li></ul><h3>Global</h3><ul><li><a href="global.html#add">add</a></li><li><a href="global.html#close">close</a></li><li><a href="global.html#create">create</a></li><li><a href="global.html#execute">execute</a></li><li><a href="global.html#md5">md5</a></li><li><a href="global.html#onData">onData</a></li><li><a href="global.html#parseByte">parseByte</a></li><li><a href="global.html#parser">parser</a></li><li><a href="global.html#parser2">parser2</a></li><li><a href="global.html#parseResInfo">parseResInfo</a></li><li><a href="global.html#query">query</a></li><li><a href="global.html#replace">replace</a></li><li><a href="global.html#reset">reset</a></li><li><a href="global.html#send_command">send_command</a></li><li><a href="global.html#sendQueueItem">sendQueueItem</a></li><li><a href="global.html#setBlock">setBlock</a></li><li><a href="global.html#socketError">socketError</a></li><li><a href="global.html#store">store</a></li><li><a href="global.html#write">write</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Tue Apr 08 2014 23:16:59 GMT+0100 (GMT Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Wed Mar 15 2017 10:13:15 GMT+0000 (GMT Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

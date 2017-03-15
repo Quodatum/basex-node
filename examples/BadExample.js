@@ -12,7 +12,7 @@ client.execute("create db test_db", log.print);
 
 //run query on database
 client.execute("xquery 2+2", log.print);
-// run query on database
+// run broken query on database
 client.execute("xquery 2+", log.print);
 
 // drop database

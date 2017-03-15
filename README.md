@@ -21,7 +21,7 @@ To install with npm:
 	$ mkdir myproject
 	cd myproject
 	$ npm install basex
-	basex@0.6.0 ./node_modules/basex 
+	basex@0.8.0 ./node_modules/basex 
 ```
 
 Once BaseX is installed and the BaseX server is running, test it. 
@@ -39,7 +39,7 @@ Once BaseX is installed and the BaseX server is running, test it.
 ## Installing BaseX
 1. Java is required
 1. [Download](http://basex.org/products/download/all-downloads/) and install BaseX
-(tested against version 7.9)
+(tested against version 8.6)
 1. Run `basexserver -S`
 
 ## API specification
@@ -53,7 +53,7 @@ There is a test suite using [mocha](http://visionmedia.github.com/mocha/)
 [sinon](http://sinonjs.org/).
 
 ```bash
-mocha -R spec test/test-commands.js 
+mocha -R spec test/ 
 
 
   Execute info command

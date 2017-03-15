@@ -1,5 +1,5 @@
 /*
- * This example shows how new databases can be created.
+ * Hang querying empty result #10
  *
  */
 var basex = require("../index");

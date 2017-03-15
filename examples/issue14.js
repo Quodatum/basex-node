@@ -1,5 +1,5 @@
 /*
- * This example shows an invalid document being added.
+ * Fixed no response bug when adding document with invalid xml #14
  *
  */
 var basex = require("../index");

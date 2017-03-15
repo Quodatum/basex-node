@@ -1,5 +1,7 @@
 ## v0.8.0 - 2017-03-14
-- 
+- Remove obsolete event watch interface. 
+- Fix #21 query.execute with error.
+
 ## v0.7.0 - 2014-12-30
 - add streaming data to server
 - support v8 style authentication 
