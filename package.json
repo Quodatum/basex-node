@@ -1,14 +1,14 @@
 {
 	"name": "basex",
-	"version": "0.8.0",
+	"version": "0.8.1",
 	"description": "A BaseX (XML database) client library",
 	"keywords": 
 	[
 		"xml",
 		"xquery",
 		"xslt",
-		"search",
-		"database"
+		"database",
+		"basex"
 	],
 
 	"author": "Andy Bunce ",
