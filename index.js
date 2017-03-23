@@ -61,8 +61,7 @@ var Session = function(host, port, username, password) {
         this.buffer = "";
         this.q_pending = new Queue(); // holds commands to send
         this.q_sent = new Queue(); // holds commands sent
-        // event stuff
-        this.event = null;
+     
         // initial parser for auth
         /**
          * Description
@@ -154,15 +153,14 @@ var Session = function(host, port, username, password) {
             //console.dir(self.current_command);
         }
     };
-
-    this.stream.on("error", socketError);
-
+   
+    this.stream.on("error", socketError.bind(this));
+   // this.stream.on('error', this.emit.bind(this, 'socketError'));
     this.stream.on("close", function() {
         if (exports.debug_mode) {
             console.log(self.tag + ": stream closed");
         }
-        if (self.event) self.event.close()
-
+      
         if (self.closefn) {
             self.closefn();
             self.closefn = null;
@@ -413,18 +411,25 @@ var Session = function(host, port, username, password) {
 };
 
 /**
- * Description
+ * react to socket errors. 
+ * @TODO research error meanings
  * @method socketError
  * @param {} e
  * @return
  */
 function socketError(e) {
     if (e.code == 'ECONNREFUSED') {
-        console.log('ECONNREFUSED: connection refused. Check BaseX server is running.');
+        console.error('ECONNREFUSED: connection refused. Check BaseX server is running.');
+    }else if (e.code == 'ECONNRESET') {
+          console.error('ECONNRESET: reset.',this.tag);
+    }else if ( e.code == 'EPIPE') {
+         console.error('EPIPE');
     } else {
-        console.log("SOCKET ERROR: ", e);
-    }
+        console.error("SOCKET ERROR: ", e);
+    };
+    this.emit("socketError",e)
 }
+
 /**
  * hash str using md5
  * @method md5

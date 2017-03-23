@@ -3,7 +3,7 @@
  */
 const basex = require("../index");
 var session = new basex.Session()
-basex.debug_mode = false;
+basex.debug_mode = true;
 function performQuery(q_str) {
     return new Promise(rs => {
         var q = session.query(q_str)

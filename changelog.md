@@ -1,3 +1,8 @@
+## v0.9.0 - 2017-03-23
+- session object now emits socketError events - see #9 #21
+- min node version set to 4.0
+- dependancies updated  
+
 ## v0.8.0 - 2017-03-14
 - Remove obsolete event watch interface. 
 - Fix #21 query.execute with error.
