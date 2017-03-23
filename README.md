@@ -21,7 +21,7 @@ To install with npm:
 	$ mkdir myproject
 	cd myproject
 	$ npm install basex
-	basex@0.8.0 ./node_modules/basex 
+	basex@0.9.0 ./node_modules/basex 
 ```
 
 Once BaseX is installed and the BaseX server is running, test it. 

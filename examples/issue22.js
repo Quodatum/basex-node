@@ -2,21 +2,41 @@
  * socket errors #22
  */
 const basex = require("../index");
-var session = new basex.Session()
-basex.debug_mode = false;
-function performQuery(q_str) {
-    return new Promise(rs => {
-        var q = session.query(q_str)
-        q.execute((e, r) => {
-            console.log("Result: ", r.result, "; Error:", e);
-        })
-    })
-}
 
-session.on("socketError",
-    (e)=>{console.log("I should handle this: ",e)}
-    );
-var query = 'fn:current-dateTime()';
-// poll server time
-setInterval(()=>{performQuery(query)},1000);
+basex.debug_mode = false;
+var session;
+
+
+function  socketError(e){
+  console.log("socket trouble detected..",e.code);
+  if (e.code == 'ECONNREFUSED') {
+    console.error('connection refused. Check BaseX server is running.');
+  } else if(e.code == 'ECONNRESET' || e.code == 'EPIPE'){
+    console.log("Restarting client in 10 seconds");
+    setTimeout(work, 10000); // 10 seconds pass..
+  } else {
+    console.error("SOCKET ERROR: ", e.code,":", e);
+  }
+};
+function work(){
+  console.log("New session");
+  session = new basex.Session();
+  session.on("socketError",socketError);
+  // poll server time every second
+  setInterval(serverdateTime,1000);
+};
+
+
+function serverdateTime() {
+    var query = 'fn:current-dateTime()';
+    var q = session.query(query)
+    q.execute((e, r) => { console.log("Result: ", r.result, "; Error:", e);});
+};
+
+
+
+work();
+
+
+
 

@@ -31,6 +31,9 @@ The default values are:
 		username (default="admin")
 		password (default= "admin")
 
+Since version 0.8.1 the `session` object emits `socketError` events on socket errors.
+This allows an application to react to events such as the server doing down.(See `examples/issue22.js`)
+
 # Session commands
 
 ##execute
@@ -85,23 +88,7 @@ Replaces a document with the specified input stream.
 ````
 Stores raw data at the specified path.
 
-##watch
-````
-	session.watch(name,notification,callback)
-````
-Request notifications for event with `name`. The function `notification` is called
-each time an event with the name is received. The signature is `notification(name,data)`.
-````
-function watchCallback(name,msg){
-console.log("watch update-----> ",msg)
-};
-session1.watch("testevent",watchCallback, log.print);
-````
-##unwatch
-````
-	session.unwatch(name,callback)
-````
-Unwatches the specified event.
+
 
 ##info
 	session.info(callback)
