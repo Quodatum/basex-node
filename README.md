@@ -48,7 +48,7 @@ See [commands.md](https://github.com/apb2006/basex-node/blob/master/docs/command
  in the docs folder for details of the API.
  
 ## Tests
-There is a test suite using [mocha](http://visionmedia.github.com/mocha/)
+There is a test suite using [mocha](http://mochajs.org/)
 , [should](https://github.com/visionmedia/should.js) and
 [sinon](http://sinonjs.org/).
 
