@@ -7,7 +7,7 @@ var should = require("should");
 
 var session = new basex.Session();
 
-describe('Send a xquery and iterate over the 1000000 result items ', function() {
+describe('[stress] Send a xquery and iterate over the 1000000 result items ', function() {
 	var reply, err;
 	before(function(done) {
 		// create query instance
@@ -26,7 +26,7 @@ describe('Send a xquery and iterate over the 1000000 result items ', function() 
 	});
 });
 
-describe('return megabyte result from execute ', function() {
+describe('[stress] return megabyte result from execute ', function() {
 	var reply, err;
 	before(function(done) {
 		// create query instance
@@ -43,7 +43,7 @@ describe('return megabyte result from execute ', function() {
 	});
 });
 
-describe('return megabyte result from query ', function() {
+describe('[stress] return megabyte result from query ', function() {
 	var reply, err;
 	before(function(done) {
 		// create query instance

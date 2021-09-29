@@ -1,3 +1,12 @@
+# Changelog
+## v1.0.0 - 2021-09-29
+- removed use of Buffer() see #28
+- query bind pass type to server #26
+- update `combined-stream` to "1.0.8"
+- Node version ">=8.0"
+- reworked tests
+- reworked sample `issue22.js`
+
 ## v0.9.0 - 2017-03-23
 - session object now emits socketError events - see #9 #21
 - min node version set to 4.0

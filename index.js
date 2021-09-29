@@ -28,6 +28,13 @@ var states = {
 
 var tagid = 0; // used to give each Session a unique .tag property
 
+var options_default={
+		host:  "127.0.0.1",
+        port: 8900, // typically 1984 
+        username:  "admin",
+        password:  "admin"	
+};
+
 /**
  * Create a session connection
  * @constructor Session
@@ -40,10 +47,10 @@ var tagid = 0; // used to give each Session a unique .tag property
 var Session = function(host, port, username, password) {
     var self = this;
     this.options = {
-        host: host || "127.0.0.1",
-        port: port || 1984,
-        username: username || "admin",
-        password: password || "admin"
+        host: host || options_default.host,
+        port: port || options_default.port,
+        username: username || options_default.username,
+        password: password ||  options_default.password
     };
 
     this.tag = "S" + (++tagid);

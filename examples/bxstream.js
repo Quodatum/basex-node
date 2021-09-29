@@ -16,7 +16,7 @@ writeStream.on('close', function () {
     console.log('All done!');
 });
 rs.pipe(writeStream);
-var b=new Buffer("aaaaaaaaaaaaaaaaaaab\x00c\xFF\x00fg\x0099","binary");
+var b= Buffer.from("aaaaaaaaaaaaaaaaaaab\x00c\xFF\x00fg\x0099","binary");
 rs.write(b);
 console.log("-------------------------")
 
@@ -24,5 +24,5 @@ var ss=new bxs.SendStream();
 ss.on("data",function(data){
 console.log(data)
 });
-var b=new Buffer("aaaaa\x00bbb\xFFcccc ","binary");
+var b= Buffer.from("aaaaa\x00bbb\xFFcccc ","binary");
 ss.write(b);

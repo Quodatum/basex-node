@@ -36,7 +36,7 @@ This allows an application to react to events such as the server doing down.(See
 
 # Session commands
 
-##execute
+## execute
 ````
 	session.execute(command,callback)
 ````
@@ -45,7 +45,7 @@ Example
 ````
 client.execute("create db test_db", log.print);
 ````
-##query
+## query
 ````
 	var query=session.query(query)
 ````	
@@ -55,7 +55,7 @@ Example
 var input = 'for $i in 1 to 100 return <xml>Text { $i }</xml>';
 var query = session.query(input);
 ````
-##create
+## create
 ````
 	session.create(name,in,callback)
 ````
@@ -65,7 +65,7 @@ Creates a database from an input stream.
 client.create("test_db", "<x>Hello World!</x>", log.print);
 ````
 
-##add
+## add
 ````
 	session.add(name,target,in,callback)
 ````
@@ -76,13 +76,13 @@ Example
 var s=fs.createReadStream(__dirname+ "/books.xml");
 client.add("/world/World.xml", s, log.print);
 ````
-##replace
+## replace
 ````
 	session.replace(path,in,callback)
 ````
 Replaces a document with the specified input stream.
     
-##store
+## store
 ````
 	session.store(path,in,callback)
 ````
@@ -90,43 +90,45 @@ Stores raw data at the specified path.
 
 
 
-##info
+## info
 	session.info(callback)
 Returns process information.
 
-##close
+## close
 	session.close(callback)
 Closes the session. 
 
 # The query object
 Create a query object `var q=session.query(query)`, then `bind` any external variables, 
 finally call `results or `execute`
-##bind
+See [Query](https://docs.basex.org/wiki/Server_Protocol#Query)
+
+## bind
 ````
    query.bind(name,value,type,callback);
 ````   
-Binds a `name` to a `value`. Currently `type` is ignored.
+Binds a `name` to a `value`.
 ````
 query.bind("name", "nodex","",log.print); 
 ````  
-##close   
+## close   
    query.close();
-##results   
+## results   
    query.results(callback);
 Returns results as an array.
 ````
 query.results(log.print);
 ````   
-##execute
+## execute
 ````   
    query.execute(callback);
 ````
 Executes the query and returns all results as a single string. 
    
-##info   
+## info   
    query.info(callback);
    
-##options   
+## options   
    query.options(callback);
    
 # Debugging
