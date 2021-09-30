@@ -30,7 +30,7 @@ var tagid = 0; // used to give each Session a unique .tag property
 
 var options_default={
 		host:  "127.0.0.1",
-        port: 8900, // typically 1984 
+        port: 1984, // test on 8900
         username:  "admin",
         password:  "admin"	
 };

@@ -1,4 +1,7 @@
 # Changelog
+## v1.0.1  - 2021-09-30
+- fix default port #29
+
 ## v1.0.0 - 2021-09-29
 - removed use of Buffer() see #28
 - query bind pass type to server #26
