@@ -11,7 +11,7 @@ BaseX is a very light-weight, high-performance and scalable
 Built as a lightweight Java server, BaseX also supports XSLT, Webdav and RestXQ.  
 
 ## Installing the BaseX Node client
-[![Npm package monthly downloads](https://badgen.net/npm/dm/basex)](https://npmjs.ccom/package/basex)
+[![Npm package monthly downloads](https://badgen.net/npm/dm/basex)](https://npmjs.com/package/basex)
 
 To install with npm:
 
