@@ -1,5 +1,6 @@
 # Changelog
 ## v1.1.0 - 2023-12-28
+- Moved repo from apb2006 to quodatum.
 - add query.options()
 - re-org tests
 - remove unnessary items from build #1
