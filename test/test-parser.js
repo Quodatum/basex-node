@@ -1,9 +1,9 @@
 /* basex-node test parser using mocha
  */
-var basex = require('../index.js');
+var basex = require('../src/index.js');
 var should = require("should");
-var parser2 = require('../lib/parser2.js');
-var bxs = require('../lib/basexstream.js');
+var parser2 = require('../src/lib/parser2.js');
+var bxs = require('../src/lib/basexstream.js');
 
 
 

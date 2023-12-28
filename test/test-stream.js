@@ -2,7 +2,7 @@
  * with streaming data   
  */
 
-var basex = require('../index.js');
+var basex = require('../src/index.js');
 var fs = require("fs");
 var should = require("should");
 

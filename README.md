@@ -53,7 +53,7 @@ There is a test suite using [mocha](http://visionmedia.github.com/mocha/)
 [sinon](http://sinonjs.org/).
 
 ```bash
-mocha -R spec test/ 
+mocha test
 
 
   Execute info command

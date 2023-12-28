@@ -20,7 +20,7 @@ require("util").inherits(SendStream, require("stream"));
 SendStream.prototype._transform = function(data) {
 	var lastpos=0;
 	// write 0xFF before 00 or FF
-    var ef=new Buffer([255])
+    var ef= Buffer.alloc([255])
 	for ( var i = 0; i < data.length; i++) {
 
 		var c = data[i]
