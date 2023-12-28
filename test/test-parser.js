@@ -7,8 +7,8 @@ var bxs = require('../lib/basexstream.js');
 
 
 
-describe('Parser test', function() {
-	var b= new Buffer("abc\0\0");
+describe('[parser] Parser test?', function() {
+	var b= Buffer.from("abc\0\0");
 	var s2=new bxs.NopStream()
 	it("should pop abc",function (){
 	var p=new parser2.parse(s2)

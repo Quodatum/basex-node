@@ -7,10 +7,10 @@ var should = require("should");
 
 
 
-describe('Authorization good', function() {
+describe('[auth] password good', function() {
 	var reply, err;
 	before(function(done) {
-		var session = new basex.Session("127.0.0.1", 1984, "admin", "admin")
+		var session = new basex.Session()
 		session.close(function(e, r) {
 			reply = r;
 			err = e;
@@ -25,7 +25,7 @@ describe('Authorization good', function() {
 });
 
 // http://stackoverflow.com/questions/9025095/how-can-i-test-uncaught-errors-in-mocha
-describe('Authorization failure ', function() {
+describe('[auth] password bad ', function() {
 	var reply, err, recordedError = null;
 	
 	it('should throw error', function(done) {
@@ -36,7 +36,7 @@ describe('Authorization failure ', function() {
             recordedError = error
             done();
         })
-		var session = new basex.Session("127.0.0.1", 1984, "admin", "wrong-password")
+		var session = new basex.Session(null,null ,null , "wrong-password")
 		session.close(function(e, r) {
 			reply = r;
 			err = e;

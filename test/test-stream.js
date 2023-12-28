@@ -8,7 +8,7 @@ var should = require("should");
 
 var session = new basex.Session();
 
-describe('Create a database testdb from stream', function() {
+describe('[stream] Create a database testdb from stream', function() {
 	var reply, err;
 	before(function(done) {
 		var str=fs.createReadStream(__dirname+ "/resources/books.xml");
@@ -24,7 +24,7 @@ describe('Create a database testdb from stream', function() {
 	});
 });
 
-describe('Add doc from stream', function() {
+describe('[stream] Add doc from stream', function() {
 	var reply, err;
 	before(function(done) {
 		var str=fs.createReadStream(__dirname+ "\\resources\\books.xml");
@@ -39,7 +39,7 @@ describe('Add doc from stream', function() {
 		should.not.exist(err);
 	});
 });
-describe('drop db testdb', function() {
+describe('[stream] drop db testdb', function() {
 	var reply, err;
 	before(function(done) {
 		session.execute("drop db testdb", function(e, r) {
