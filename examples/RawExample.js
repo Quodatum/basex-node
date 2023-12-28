@@ -18,7 +18,7 @@ function print(err, reply) {
     } else {
             console.log("Reply: ",reply);
             var str = reply.result;
-            var buf = new Buffer(str.length);
+            var buf =  Buffer.alloc(str.length);
 
             for (var i = 0; i < str.length ; i++) {
               buf[i] = str.charCodeAt(i);

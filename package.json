@@ -2,8 +2,7 @@
 	"name": "basex",
 	"version": "1.1.0",
 	"description": "A BaseX (XML database) client library",
-	"keywords": 
-	[
+	"keywords": [
 		"xml",
 		"xquery",
 		"xslt",
@@ -19,10 +18,8 @@
 		"type": "git",
 		"url": "git://github.com/quodatum/basex-node.git"
 	},
-
-	"dependencies": 
-	{
-		"combined-stream": "1.0.3"
+	"dependencies": {
+		"combined-stream": "1.0.8"
 	},
 	"scripts": {
 		"test": "mocha test --reporter spec"
@@ -32,11 +29,8 @@
 		"should": "*",
 		"sinon": "*"
 	},
-
-	"engines": 
-	{
-		"node": ">=4.0"
+	"engines": {
+		"node": ">=8.0"
 	},
-
 	"license": "BSD-3-Clause"
 }
