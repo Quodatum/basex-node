@@ -11,17 +11,17 @@ BaseX is a very light-weight, high-performance and scalable
 Built as a lightweight Java server, BaseX also supports XSLT, Webdav and RestXQ.  
 
 ## Installing the BaseX Node client
-[![Npm package monthly downloads](https://badgen.net/npm/dm/basex)](https://npmjs.com/package/basex)
+[![Npm package monthly downloads](https://badgen.net/npm/dm/@quodatum/basex)](https://npmjs.com/package/@quodatum/basex)
 
 To install with npm:
 
-`npm install basex`
+`npm install @quodatum/basex`
 
 ```bash
 	$ mkdir myproject
 	cd myproject
-	$ npm install basex
-	basex@1.0.0 ./node_modules/basex 
+	$ npm install @quodatum/basex
+	@quodatum/basex@1.0.0 ./node_modules/@quodatum/basex 
 ```
 
 Once BaseX is installed and the BaseX server is running, test it. 
@@ -44,7 +44,7 @@ Once BaseX is installed and the BaseX server is running, test it.
 
 ## API specification
 
-See [commands.md](https://github.com/apb2006/basex-node/blob/master/docs/commands.md)
+See [commands.md](https://github.com/quodatum/basex-node/blob/master/docs/commands.md)
  in the docs folder for details of the API.
  
 ## Tests
@@ -53,7 +53,7 @@ There is a test suite using [mocha](http://mochajs.org/)
 [sinon](http://sinonjs.org/).
 
 ```bash
-mocha -R spec test/ 
+mocha test
 
  [auth] password good
     √ should not error

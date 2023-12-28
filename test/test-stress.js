@@ -2,7 +2,7 @@
  * 
  */
 
-var basex = require('../index.js');
+var basex = require('../src/index.js');
 var should = require("should");
 
 var session = new basex.Session();

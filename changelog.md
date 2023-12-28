@@ -1,4 +1,10 @@
 # Changelog
+## v1.1.0 - 2023-12-28
+- Moved repo from apb2006 to quodatum.
+- add query.options()
+- re-org tests
+- remove unnessary items from build #1
+- add typescript definitions
 ## v1.0.1  - 2021-09-30
 - fix default port #29
 

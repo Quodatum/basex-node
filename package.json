@@ -1,33 +1,45 @@
 {
-	"name": "basex",
-	"version": "1.0.1",
-	"description": "A BaseX (XML database) client library",
-	"keywords": [
-		"xml",
-		"xquery",
-		"xslt",
-		"database",
-		"basex"
-	],
-	"author": "Andy Bunce ",
-	"contributors": [
-		"Andy Bunce"
-	],
-	"main": "./index.js",
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/apb2006/basex-node.git"
-	},
-	"dependencies": {
-		"combined-stream": "1.0.8"
-	},
-	"devDependencies": {
-		"mocha": "*",
-		"should": "*",
-		"sinon": "*"
-	},
-	"engines": {
-		"node": ">=8.0"
-	},
-	"license": "BSD-3-Clause"
+  "name": "@quodatum/basex",
+  "version": "1.1.0",
+  "description": "A BaseX (XML database) client library",
+  "keywords": [
+    "xml",
+    "xquery",
+    "xslt",
+    "database",
+    "basex"
+  ],
+  "author": "Quodatum",
+  "contributors": [
+    "Andy Bunce"
+  ],
+  "main": "./src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/quodatum/basex-node.git"
+  },
+  "dependencies": {
+    "combined-stream": "1.0.8"
+  },
+  "scripts": {
+    "test": "mocha test --reporter spec"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*",
+    "sinon": "*"
+  },
+  "engines": {
+    "node": ">=8.0"
+  },
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/quodatum/basex-node/issues"
+  },
+  "homepage": "https://github.com/quodatum/basex-node#readme",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "test"
+  }
 }
