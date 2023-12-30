@@ -1,4 +1,6 @@
 # Changelog
+## v1.1.1 - 2023-12-30
+- fix declare types
 ## v1.1.0 - 2023-12-28
 - Moved repo from apb2006 to quodatum.
 - add query.options()
