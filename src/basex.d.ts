@@ -1,5 +1,5 @@
 
-declare module 'basex' {
+declare module '@quodatum/basex' {
 
     type CallbackType = (err: any, reply: any) => void;
     export class Session {
