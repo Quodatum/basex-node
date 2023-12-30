@@ -2,7 +2,7 @@
  * basex-node test query bind interface using mocha
  */
 
-var basex = require('../index.js');
+var basex = require('../src');
 var should = require("should");
 
 var session = new basex.Session();
