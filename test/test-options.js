@@ -11,7 +11,7 @@ var session = new basex.Session();
 describe(
 	'[options] create query get options ',
 	function () {
-		var reply, err;
+		var reply, err,serialization;
 		before(function (done) {
 			var input = "declare option output:method 'text';<xml>Hi there</xml>";
 			var query = session.query(input);
@@ -19,9 +19,14 @@ describe(
 
 			// print results
 			query.options(function (e, r) {
-				reply = r;
+				serialization = r.result;
 				err = e;
-				done();
+				query.results(
+					function (e, r) {
+						reply = r;
+						err = e;
+						done();
+			});
 			});
 		});
 
@@ -29,8 +34,11 @@ describe(
 			should.not.exist(err);
 		});
 		// "method=text"
-		it('It should return a string', function () {
-			reply.result.should.be.a.String
+		it('serialization should return a string', function () {
+			serialization.should.equal("method=text");
+		});
+		it('reply should return a string', function () {
+			reply.result[0].should.equal("Hi there");
 		});
 	});
 

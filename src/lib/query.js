@@ -198,7 +198,7 @@ function Query(session, query) {
       } while (progress)
     };
 	/**
-	 * Description
+	 * query information:
 	 * @method info
 	 * @param {} callback
 	 * @return 
@@ -219,7 +219,7 @@ function Query(session, query) {
 	};
 
 	/**
-	 * Description
+	 * serialization parameters:
 	 * @method options
 	 * @param {} callback
 	 * @return 
