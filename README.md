@@ -1,9 +1,5 @@
----
-title: Example title
-date: today
-author: Me
----
-`basex` - A BaseX client for node.js  
+
+`@quodatum/basex` - A BaseX client for node.js  
 ====================================
 ![NPM Version](https://img.shields.io/npm/v/%40quodatum%2Fbasex)
 ![NPM Downloads](https://img.shields.io/npm/dw/%40quodatum%2Fbasex)
@@ -35,8 +31,8 @@ To install with npm:
 ```
 
 Once BaseX is installed and the BaseX server is running, test it.
-The examples here expect 
-1. To be run from the git repo `examples\ folder.
+The examples here **expect** 
+1. To be run from the git repo `/examples` folder.
 2. A BaseX server running on localhost:1984, with user "admin" and password "admin".
  
 
