@@ -2,7 +2,7 @@
  * socket errors #22
  * An example of handling socket errors and reconnecting 
  */
-const basex = require("../index");
+const basex = require("../src/index");
 
 basex.debug_mode = false;
 var session;

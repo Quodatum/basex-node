@@ -1,5 +1,16 @@
-# basex - A BaseX client for node.js  
-===========================
+---
+title: Example title
+date: today
+author: Me
+---
+`basex` - A BaseX client for node.js  
+====================================
+![NPM Version](https://img.shields.io/npm/v/%40quodatum%2Fbasex)
+![NPM Downloads](https://img.shields.io/npm/dw/%40quodatum%2Fbasex)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/quodatum/basex-node)
+
+
+
 
 This is a [BaseX](http://basex.org/) client for Node.js. 
 It uses the [client interface](http://docs.basex.org/wiki/Server_Protocol)
@@ -8,10 +19,9 @@ It uses the [client interface](http://docs.basex.org/wiki/Server_Protocol)
 BaseX is a very light-weight, high-performance and scalable
  XML Database engine and XPath/XQuery 3.0 Processor, 
  including full support for the W3C Update and Full Text extensions.
-Built as a lightweight Java server, BaseX also supports XSLT, Webdav and RestXQ.  
+
 
 ## Installing the BaseX Node client
-[![Npm package monthly downloads](https://badgen.net/npm/dm/@quodatum/basex)](https://npmjs.com/package/@quodatum/basex)
 
 To install with npm:
 
@@ -24,7 +34,11 @@ To install with npm:
 	@quodatum/basex@1.0.0 ./node_modules/@quodatum/basex 
 ```
 
-Once BaseX is installed and the BaseX server is running, test it. 
+Once BaseX is installed and the BaseX server is running, test it.
+The examples here expect 
+1. To be run from the git repo `examples\ folder.
+2. A BaseX server running on localhost:1984, with user "admin" and password "admin".
+ 
 
 ```bash
 	$ cd examples/
@@ -39,7 +53,7 @@ Once BaseX is installed and the BaseX server is running, test it.
 ## Installing BaseX
 1. Java is required
 1. [Download](http://basex.org/products/download/all-downloads/) and install BaseX
-(tested against versions 9.6,8.6)
+(tested against versions 10.7,9.6,8.6)
 1. Run `basexserver -S`
 
 ## API specification

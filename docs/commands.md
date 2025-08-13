@@ -9,7 +9,7 @@ The second `reply` will hold the reply. The reply is often an object with
 		{ result: '1 2 3 4 5 6 7 8 9 10',
 		  info: '\nQuery executed in 0.38 ms.\n' }
 
-The utility function `print` in the debug module shows the syntax:
+The utility function `print` in the `debug.js` module shows the syntax:
  
 		function print(err, reply) {
 			if (err) {

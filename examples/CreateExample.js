@@ -2,8 +2,8 @@
  * This example shows how new databases can be created.
  *
  */
-var basex = require("../index");
-var log = require("../debug");
+var basex = require("../src/index");
+var log = require("../src/debug");;
 //basex.debug_mode = true;
 // create session
 var client = new basex.Session("localhost", 1984, "admin", "admin");

@@ -1,6 +1,6 @@
 // standalone basex test
-var basex =require("../index");
-var log = require("../debug");
+var basex =require("../src/index");
+var log = require("../src/debug");;
 basex.debug_mode = true;
 
 var s=new basex.Session();

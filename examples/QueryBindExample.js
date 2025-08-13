@@ -3,8 +3,8 @@
  * This example shows how external variables can be bound to XQuery expressions.
  */
 
-var basex  = require("../index");
-var log = require("../debug");
+var basex  = require("../src/index");
+var log = require("../src/debug");;
 //basex.debug_mode = true;
 var session = new basex.Session();
 

@@ -2,8 +2,8 @@
  * Fixed no response bug when adding document with invalid xml #14
  *
  */
-var basex = require("../index");
-var log = require("../debug");
+var basex = require("../src/index");
+var log = require("../src/debug");;
 // create session
 var client = new basex.Session();
 basex.debug_mode = true;

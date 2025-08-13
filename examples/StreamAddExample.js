@@ -2,8 +2,8 @@
  * This example shows how new documents can be added.
  *
  */
-var basex = require("../index");
-var log = require("../debug");
+var basex = require("../src/index");
+var log = require("../src/debug");;
 var fs = require("fs");
 
 // create session

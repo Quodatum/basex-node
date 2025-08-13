@@ -2,8 +2,8 @@
  * has no method on #17
  *
  */
-var basex = require("../index");
-var log = require("../debug");
+var basex = require("../src/index");
+var log = require("../src/debug");;
 
 // create session
 var session = new basex.Session("localhost", 1984, "admin", "admin");

@@ -1,7 +1,7 @@
 /*
  * This example shows how JSON can be returned.
  */
-var basex  = require("../index");
+var basex  = require("../src/index");
 var client = new basex.Session();
 /**
  * Description

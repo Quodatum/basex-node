@@ -1,6 +1,6 @@
 // create webserver on port 9000
 // shows baseX info 
-var basex = require("../index");
+var basex = require("../src/index");
 var http = require('http');
 
 /**

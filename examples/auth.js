@@ -1,7 +1,7 @@
 /*
  * This example has all session options explicitly set.
  */
-var basex  = require("../index");
+var basex  = require("../src/index");
 basex.debug_mode = false;
 var client = new basex.Session("localhost", 8900,"admin","admin");
 

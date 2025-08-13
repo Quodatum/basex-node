@@ -4,8 +4,8 @@
  * Iterative evaluation will be slower, as more server requests are performed.
  *
  */
-var basex  = require("../index");
-var log = require("../debug");
+var basex  = require("../src/index");
+var log = require("../src/debug");;
 
 // create session
 var session = new basex.Session("localhost", 1984, "admin", "admin");

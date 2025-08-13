@@ -2,8 +2,8 @@
  * This example shows error response
  *
  */
-var basex = require("../index");
-var log = require("../debug");
+var basex = require("../src/index");
+var log = require("../src/debug");;
 // create session
 var session = new basex.Session("localhost", 1984, "admin", "admin");
 basex.debug_mode = false;

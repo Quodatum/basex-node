@@ -2,7 +2,7 @@
 /*
  * This example shows how database commands can be executed.
  */
-var basex  = require("../index");
+var basex  = require("../src/index");
 var client = new basex.Session("localhost", 1984, "admin", "admin");
 basex.debug_mode = false;
 /**

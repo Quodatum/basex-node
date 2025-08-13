@@ -1,7 +1,7 @@
 /*
  * Next query executed after failed query returns invalid output #21
  */
-const basex = require("../index");
+const basex = require("../src/index");
 var session = new basex.Session()
 basex.debug_mode = true;
 function performQuery(q_str) {

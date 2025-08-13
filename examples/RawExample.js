@@ -1,7 +1,7 @@
 /*
  * This example shows the use of binary data .
  */
-var basex  = require("../index");
+var basex  = require("../src/index");
 var client = new basex.Session();
 basex.debug_mode = true;
 
